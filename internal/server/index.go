@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/KonferCA/NoKap/db"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+
+	"github.com/KonferCA/NoKap/db"
+	"github.com/KonferCA/NoKap/internal/middleware"
 )
 
 type Server struct {
@@ -20,7 +21,7 @@ type Server struct {
 // Create a new Server instance and registers all routes and middlewares.
 // Initialize database pool connection.
 func New() (*Server, error) {
-  connStr := fmt.Sprintf(
+	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -37,7 +38,7 @@ func New() (*Server, error) {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echoMiddleware.Recover())
 
 	server := &Server{
 		DBPool: pool,
