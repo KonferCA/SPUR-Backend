@@ -3,20 +3,23 @@ NAME ?= name
 TEST_DB_PASSWORD ?= password
 TEST_DB_HOST_PORT ?= 5432
 TEST_DB_URL ?= postgres://postgres:$(TEST_DB_PASSWORD)@localhost:$(TEST_DB_HOST_PORT)/postgres?sslmode=disable 
+POSTGRESQL_VERSION=16
 
-.PHONE: query
+.PHONY: query
 
 dev:
 	@VERSION=dev APP_ENV=development air
 up:
-	@goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
 down:
-	@goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down-to 0
+	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down-to 0
 migration:
-	@goose -dir ./migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" create $(NAME) sql
+	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" create $(NAME) sql
+sql:
+	@sqlc generate
 
 init-dev-db:
-	@docker run --name nokap-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DATABASE=nokap -p 5432:5432 -d postgres:14 && \
+	@docker run --name nokap-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DATABASE=postgres -p 5432:5432 -d postgres:$(POSTGRESQL_VERSION) && \
 		timeout 90s bash -c "until docker exec nokap-postgres pg_isready ; do sleep 5 ; done" && echo "Postgres is ready! Run migrations with 'make up'"
 start-dev-db:
 	@docker start nokap-postgres && \
@@ -43,7 +46,7 @@ test: start-testdb
 
 start-testdb:
 	@echo "Setting up PostgreSQL database..."
-	@docker run --name test-postgres -e POSTGRES_PASSWORD=$(TEST_DB_PASSWORD) -d -p "$(TEST_DB_HOST_PORT):5432" postgres:14
+	@docker run --name test-postgres -e POSTGRES_PASSWORD=$(TEST_DB_PASSWORD) -d -p "$(TEST_DB_HOST_PORT):5432" postgres:$(POSTGRESQL_VERSION)
 	@echo "Waiting for PostgreSQL to be ready..."
 	@until docker exec test-postgres pg_isready -U postgres; do sleep 1; done
 	@goose -dir ./migrations postgres $(TEST_DB_URL) up
