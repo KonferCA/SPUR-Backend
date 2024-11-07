@@ -4,11 +4,12 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/KonferCA/NoKap/db"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+
+	"github.com/KonferCA/NoKap/db"
+	"github.com/KonferCA/NoKap/internal/middleware"
 )
 
 type Server struct {
@@ -37,7 +38,7 @@ func New() (*Server, error) {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echoMiddleware.Recover())
 
 	server := &Server{
 		DBPool:       pool,
