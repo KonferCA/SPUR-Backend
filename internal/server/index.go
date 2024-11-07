@@ -1,28 +1,52 @@
 package server
 
 import (
+	"fmt"
+	"os"
+
+	"github.com/KonferCA/NoKap/db"
+
+	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 )
 
 type Server struct {
+	DBPool       *pgxpool.Pool
 	echoInstance *echo.Echo
 	apiV1        *echo.Group
 }
 
 // Create a new Server instance and registers all routes and middlewares.
-func New() *Server {
+// Initialize database pool connection.
+func New() (*Server, error) {
+  connStr := fmt.Sprintf(
+		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
+		os.Getenv("DB_HOST"),
+		os.Getenv("DB_PORT"),
+		os.Getenv("DB_USER"),
+		os.Getenv("DB_PASSWORD"),
+		os.Getenv("DB_NAME"),
+		os.Getenv("DB_SSLMODE"),
+	)
+	pool, err := db.NewPool(connStr)
+	if err != nil {
+		return nil, err
+	}
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
-	server := &Server{}
+	server := &Server{
+		DBPool: pool,
+	}
 	server.echoInstance = e
 
 	server.setupV1Routes()
 
-	return server
+	return server, nil
 }
 
 func (s *Server) setupV1Routes() {
