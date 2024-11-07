@@ -16,6 +16,12 @@ func main() {
 		}
 	}
 
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8080"
+	}
+
 	s := server.New()
+	log.Printf("Server running on port %s", port)
 	log.Fatal(s.Listen(":" + os.Getenv("PORT")))
 }
