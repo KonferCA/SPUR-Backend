@@ -20,7 +20,7 @@ type Server struct {
 // Create a new Server instance and registers all routes and middlewares.
 // Initialize database pool connection.
 func New() (*Server, error) {
-  connStr := fmt.Sprintf(
+	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -40,11 +40,15 @@ func New() (*Server, error) {
 	e.Use(middleware.Recover())
 
 	server := &Server{
-		DBPool: pool,
+		DBPool:       pool,
+		echoInstance: e,
 	}
-	server.echoInstance = e
 
+	// setup api routes
 	server.setupV1Routes()
+
+	// setup static routes
+	server.setupStaticRoutes()
 
 	return server, nil
 }
@@ -52,13 +56,13 @@ func New() (*Server, error) {
 func (s *Server) setupV1Routes() {
 	s.apiV1 = s.echoInstance.Group("/api/v1")
 
+	s.apiV1.GET("/health", s.handleHealthCheck)
+
 	s.echoInstance.GET("/", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{
 			"message": "Server do be running...",
 		})
 	})
-
-	s.apiV1.GET("/health", s.handleHealthCheck)
 
 	for _, route := range s.echoInstance.Routes() {
 		s.echoInstance.Logger.Printf("Route: %s %s", route.Method, route.Path)
