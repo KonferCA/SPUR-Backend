@@ -2,7 +2,6 @@ package server
 
 import (
 	"mime"
-	"os"
 	"path/filepath"
 	"strings"
 
@@ -16,15 +15,8 @@ func (s *Server) setupStaticRoutes() {
 	mime.AddExtensionType(".css", "text/css")
 	mime.AddExtensionType(".html", "text/html")
 
-	// get static files directory from env or use default
-	staticDir := os.Getenv("STATIC_FILES_DIR")
-	if staticDir == "" {
-		if os.Getenv("APP_ENV") == "development" {
-			staticDir = "static/dist" // local development
-		} else {
-			staticDir = "/app/static" // docker environment
-		}
-	}
+	// hardcode static directory
+	staticDir := "static/dist"
 
 	// serve static files
 	s.echoInstance.Use(middleware.StaticWithConfig(middleware.StaticConfig{
