@@ -37,7 +37,7 @@ jobs:
 
                       # check if PostgreSQL container is running
                       POSTGRES_CONTAINER="$APP_NAME-postgres"
-                      if ! docker ps | grep $POSTGRES_CONTAINER then
+                      if ! docker ps | grep $POSTGRES_CONTAINER; then
                         echo "PostgreSQL container not found. Starting new container..."
                         docker run -d \
                           --name $POSTGRES_CONTAINER \
