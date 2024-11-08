@@ -77,8 +77,10 @@ func (s *Server) setupV1Routes() {
 }
 
 func (s *Server) setupStartupRoutes() {
-	s.apiV1.POST("/startups", s.handleCreateStartup)
-	s.apiV1.GET("/startups/:id", s.handleGetStartup)
+	s.apiV1.POST("/companies", s.handleCreateCompany)
+	s.apiV1.GET("/companies/:id", s.handleGetCompany)
+	s.apiV1.GET("/companies", s.handleListCompanies)
+	s.apiV1.GET("/companies/:id", s.handleDeleteCompany)
 }
 
 // Start listening at the given address.
