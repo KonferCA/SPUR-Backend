@@ -35,7 +35,7 @@ if ! docker ps | grep $POSTGRES_CONTAINER; then
     docker run -d \
         --name $POSTGRES_CONTAINER \
         -v $POSTGRES_DATA_DIR:/var/lib/postgresql/data \
-        -p $DB_PORT:5433 \
+        -p $DB_PORT:5432 \
         --env-file .env \
         postgres:16
 
