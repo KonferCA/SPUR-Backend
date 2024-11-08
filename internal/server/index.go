@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"os"
 
+	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -40,6 +41,10 @@ func New() (*Server, error) {
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
+	e.Validator = &CustomValidator{
+		validator: validator.New(),
+	}
+
 	server := &Server{
 		DBPool:       pool,
 		echoInstance: e,
@@ -47,6 +52,7 @@ func New() (*Server, error) {
 
 	// setup api routes
 	server.setupV1Routes()
+	server.setupStartupRoutes()
 
 	// setup static routes
 	server.setupStaticRoutes()
@@ -68,6 +74,11 @@ func (s *Server) setupV1Routes() {
 	for _, route := range s.echoInstance.Routes() {
 		s.echoInstance.Logger.Printf("Route: %s %s", route.Method, route.Path)
 	}
+}
+
+func (s *Server) setupStartupRoutes() {
+	s.apiV1.POST("/startups", s.handleCreateStartup)
+	s.apiV1.GET("/startups/:id", s.handleGetStartup)
 }
 
 // Start listening at the given address.

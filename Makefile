@@ -10,11 +10,11 @@ POSTGRESQL_VERSION=16
 dev:
 	@VERSION=dev APP_ENV=development air
 up:
-	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
+	@goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
 down:
-	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down-to 0
+	@goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" down-to 0
 migration:
-	@goose -dir ./sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" create $(NAME) sql
+	@goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" create $(NAME) sql
 sql:
 	@sqlc generate
 
