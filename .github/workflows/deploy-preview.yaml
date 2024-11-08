@@ -18,6 +18,21 @@ jobs:
           key: ${{ secrets.PREVIEW_SERVER_SSH_KEY }}
           envs: MICONFIG,PK
           script: |
+            clean_up() {
+              echo "Performing cleanup..."
+              cd ~
+              echo "Remove repository"
+              rm -rf repo
+              echo "Docker cleanup"
+              docker system prune -f
+              echo "Done: Cleanup"
+            }
+            handle_error() {
+              clean_up
+              echo "Failed to deploy preview"
+              exit 1
+            }
+            trap 'handler_error' ERR
             echo "Cloning repository"
             cd ~
             rm -rf repo
@@ -27,11 +42,4 @@ jobs:
             cp .github/scripts/deploy-preview.sh .
             echo "Running deploy-preview.sh"
             chmod +x deploy-preview.sh
-            ./deploy-preview.sh || echo "Failed to deploy preview"
-            echo "Performing cleanup..."
-            cd ~
-            echo "Remove repository"
-            rm -rf repo
-            echo "Docker cleanup"
-            docker system prune -f
-            echo "Done: Cleanup"
+            ./deploy-preview.sh
