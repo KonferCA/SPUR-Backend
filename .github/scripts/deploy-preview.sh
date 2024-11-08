@@ -64,8 +64,8 @@ docker rm $APP_NAME || true
 echo "Starting new application container..."
 docker run -d \
     --name $APP_NAME \
-    -p "$PORT:$PORT" \
     --env-file .env \
+    --network=host --add-host=host.docker.internal:host-gateway \
     $APP_NAME:latest
 
 echo "Done: Preview Deployment"
