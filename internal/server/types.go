@@ -12,9 +12,10 @@ type HealthReport struct {
 	Version  string `json:"version"`
 }
 
-type CreateStartupRequest struct {
-	Name    string `json:"name" validate:"required"`
-	OwnerID int32  `json:"owner_id" validate:"required"`
+type CreateCompanyRequest struct {
+	OwnerUserID string `json:"owner_id" validate:"required"`
+	Name        string `json:"name" validate:"required"`
+	Description string `json:"description" validate:"required"`
 }
 
 type CustomValidator struct {
