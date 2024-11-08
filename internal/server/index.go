@@ -5,6 +5,7 @@ import (
 	"os"
 
 	"github.com/KonferCA/NoKap/db"
+	"github.com/go-playground/validator/v10"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
@@ -20,7 +21,7 @@ type Server struct {
 // Create a new Server instance and registers all routes and middlewares.
 // Initialize database pool connection.
 func New() (*Server, error) {
-  connStr := fmt.Sprintf(
+	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
 		os.Getenv("DB_PORT"),
@@ -39,12 +40,17 @@ func New() (*Server, error) {
 	e.Use(middleware.Logger())
 	e.Use(middleware.Recover())
 
+	e.Validator = &CustomValidator{
+		validator: validator.New(),
+	}
+
 	server := &Server{
 		DBPool: pool,
 	}
 	server.echoInstance = e
 
 	server.setupV1Routes()
+	server.setupStartupRoutes()
 
 	return server, nil
 }
@@ -63,6 +69,11 @@ func (s *Server) setupV1Routes() {
 	for _, route := range s.echoInstance.Routes() {
 		s.echoInstance.Logger.Printf("Route: %s %s", route.Method, route.Path)
 	}
+}
+
+func (s *Server) setupStartupRoutes() {
+	s.apiV1.POST("/startups", s.handleCreateStartup)
+	s.apiV1.GET("/startups/:id", s.handleGetStartup)
 }
 
 // Start listening at the given address.
