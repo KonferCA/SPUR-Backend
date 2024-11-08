@@ -7,39 +7,27 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createStartup = `-- name: CreateStartup :one
 INSERT INTO startups (
     owner_id,
     name,
-    status,
-    created_at,
-    updated_at
+    status
 ) VALUES (
-    $1, $2, $3, $4, $5
+    $1, $2, $3
 )
 RETURNING id, owner_id, name, status, created_at, updated_at
 `
 
 type CreateStartupParams struct {
-	OwnerID   int32
-	Name      string
-	Status    string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
+	OwnerID int32
+	Name    string
+	Status  string
 }
 
 func (q *Queries) CreateStartup(ctx context.Context, arg CreateStartupParams) (Startup, error) {
-	row := q.db.QueryRow(ctx, createStartup,
-		arg.OwnerID,
-		arg.Name,
-		arg.Status,
-		arg.CreatedAt,
-		arg.UpdatedAt,
-	)
+	row := q.db.QueryRow(ctx, createStartup, arg.OwnerID, arg.Name, arg.Status)
 	var i Startup
 	err := row.Scan(
 		&i.ID,
