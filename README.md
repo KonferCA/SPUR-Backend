@@ -26,6 +26,3 @@ Make sure to download **VERSION 1.23** for best compatibility.
 
 > Use `make query "SELECT ... FROM ..."` for quick query on the terminal.
 > You should also checkout the other available commands in the Makefile.
-goose version: v3.22.1
-sqlc version v1.27.0
-air version v1.61.1

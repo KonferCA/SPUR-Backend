@@ -4,12 +4,13 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/KonferCA/NoKap/db"
 	"github.com/go-playground/validator/v10"
-
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
+	echoMiddleware "github.com/labstack/echo/v4/middleware"
+
+	"github.com/KonferCA/NoKap/db"
+	"github.com/KonferCA/NoKap/internal/middleware"
 )
 
 type Server struct {
@@ -38,19 +39,23 @@ func New() (*Server, error) {
 	e := echo.New()
 
 	e.Use(middleware.Logger())
-	e.Use(middleware.Recover())
+	e.Use(echoMiddleware.Recover())
 
 	e.Validator = &CustomValidator{
 		validator: validator.New(),
 	}
 
 	server := &Server{
-		DBPool: pool,
+		DBPool:       pool,
+		echoInstance: e,
 	}
-	server.echoInstance = e
 
+	// setup api routes
 	server.setupV1Routes()
 	server.setupStartupRoutes()
+
+	// setup static routes
+	server.setupStaticRoutes()
 
 	return server, nil
 }
@@ -58,13 +63,13 @@ func New() (*Server, error) {
 func (s *Server) setupV1Routes() {
 	s.apiV1 = s.echoInstance.Group("/api/v1")
 
+	s.apiV1.GET("/health", s.handleHealthCheck)
+
 	s.echoInstance.GET("/", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{
 			"message": "Server do be running...",
 		})
 	})
-
-	s.apiV1.GET("/health", s.handleHealthCheck)
 
 	for _, route := range s.echoInstance.Routes() {
 		s.echoInstance.Logger.Printf("Route: %s %s", route.Method, route.Path)
