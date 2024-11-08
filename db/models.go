@@ -14,4 +14,5 @@ type Startup struct {
 	Name      string
 	Status    string
 	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }

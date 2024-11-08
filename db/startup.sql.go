@@ -16,11 +16,12 @@ INSERT INTO startups (
     owner_id,
     name,
     status,
-    created_at
+    created_at,
+    updated_at
 ) VALUES (
-    $1, $2, $3, $4
+    $1, $2, $3, $4, $5
 )
-RETURNING id, owner_id, name, status, created_at
+RETURNING id, owner_id, name, status, created_at, updated_at
 `
 
 type CreateStartupParams struct {
@@ -28,6 +29,7 @@ type CreateStartupParams struct {
 	Name      string
 	Status    string
 	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 func (q *Queries) CreateStartup(ctx context.Context, arg CreateStartupParams) (Startup, error) {
@@ -36,6 +38,7 @@ func (q *Queries) CreateStartup(ctx context.Context, arg CreateStartupParams) (S
 		arg.Name,
 		arg.Status,
 		arg.CreatedAt,
+		arg.UpdatedAt,
 	)
 	var i Startup
 	err := row.Scan(
@@ -44,13 +47,14 @@ func (q *Queries) CreateStartup(ctx context.Context, arg CreateStartupParams) (S
 		&i.Name,
 		&i.Status,
 		&i.CreatedAt,
+		&i.UpdatedAt,
 	)
 	return i, err
 }
 
 const getStartups = `-- name: GetStartups :many
-SELECT id, owner_id, name, status, created_at FROM startups
-ORDER BY created_at DESC
+SELECT id, owner_id, name, status, created_at, updated_at FROM startups
+ORDER BY updated_at DESC
 `
 
 func (q *Queries) GetStartups(ctx context.Context) ([]Startup, error) {
@@ -68,6 +72,7 @@ func (q *Queries) GetStartups(ctx context.Context) ([]Startup, error) {
 			&i.Name,
 			&i.Status,
 			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
