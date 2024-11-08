@@ -8,11 +8,12 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
-type Startup struct {
-	ID        int32
-	OwnerID   int32
-	Name      string
-	Status    string
-	CreatedAt pgtype.Timestamp
-	UpdatedAt pgtype.Timestamp
+type Company struct {
+	ID          pgtype.UUID
+	OwnerUserID pgtype.UUID
+	Name        string
+	Description pgtype.Text
+	IsVerified  bool
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
 }
