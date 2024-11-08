@@ -27,7 +27,7 @@ jobs:
             cp .github/scripts/deploy-preview.sh .
             echo "Running deploy-preview.sh"
             chmod +x deploy-preview.sh
-            ./deploy-preview.sh
+            ./deploy-preview.sh || echo "Failed to deploy preview"
             echo "Performing cleanup..."
             cd ~
             echo "Remove repository"
