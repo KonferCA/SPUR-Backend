@@ -65,7 +65,7 @@ echo "Starting new application container..."
 docker run -d \
     --name $APP_NAME \
     -p "$PORT:$PORT" \
-    --env-file ../.env \
+    --env-file .env \
     $APP_NAME:latest
 
 echo "Done: Preview Deployment"
