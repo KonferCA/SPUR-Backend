@@ -18,6 +18,11 @@ migration:
 sql:
 	@sqlc generate
 
+setup:
+	@go install github.com/air-verse/air@v1.61.1 && \
+		go install github.com/sqlc-dev/sqlc/cmd/sqlc@v1.27.0 && \
+		go install github.com/pressly/goose/v3/cmd/goose@v3.22.1
+
 init-dev-db:
 	@docker run --name nokap-postgres -e POSTGRES_USER=postgres -e POSTGRES_PASSWORD=postgres -e POSTGRES_DATABASE=postgres -p 5432:5432 -d postgres:$(POSTGRESQL_VERSION) && \
 		timeout 90s bash -c "until docker exec nokap-postgres pg_isready ; do sleep 5 ; done" && echo "Postgres is ready! Run migrations with 'make up'"
