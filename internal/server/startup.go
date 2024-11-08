@@ -4,10 +4,8 @@ import (
 	"context"
 	"fmt"
 	"net/http"
-	"time"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -26,10 +24,6 @@ func (s *Server) handleCreateStartup(c echo.Context) error {
 		OwnerID: req.OwnerID,
 		Name:    req.Name,
 		Status:  "active",
-		CreatedAt: pgtype.Timestamp{
-			Time:  time.Now(),
-			Valid: true,
-		},
 	}
 
 	startup, err := queries.CreateStartup(context.Background(), params)
