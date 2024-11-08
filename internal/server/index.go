@@ -53,6 +53,7 @@ func New() (*Server, error) {
 	// setup api routes
 	server.setupV1Routes()
 	server.setupStartupRoutes()
+	server.setupHealthRoutes()
 
 	// setup static routes
 	server.setupStaticRoutes()
@@ -62,8 +63,6 @@ func New() (*Server, error) {
 
 func (s *Server) setupV1Routes() {
 	s.apiV1 = s.echoInstance.Group("/api/v1")
-
-	s.apiV1.GET("/health", s.handleHealthCheck)
 
 	s.echoInstance.GET("/", func(c echo.Context) error {
 		return c.JSON(200, map[string]string{
@@ -81,6 +80,10 @@ func (s *Server) setupStartupRoutes() {
 	s.apiV1.GET("/companies/:id", s.handleGetCompany)
 	s.apiV1.GET("/companies", s.handleListCompanies)
 	s.apiV1.GET("/companies/:id", s.handleDeleteCompany)
+}
+
+func (s *Server) setupHealthRoutes() {
+	s.apiV1.GET("/health", s.handleHealthCheck)
 }
 
 // Start listening at the given address.

@@ -2,14 +2,31 @@ package server
 
 import (
 	"net/http"
+	"time"
 
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 )
 
+type DatabaseInfo struct {
+	Connected       bool    `json:"connected"`
+	LatencyMs       float64 `json:"latency_ms"`
+	PostgresVersion string  `json:"postgres_version,omitempty"`
+	Error           string  `json:"error,omitempty"`
+}
+
+type SystemInfo struct {
+	Version      string  `json:"version"`
+	GoVersion    string  `json:"go_version"`
+	NumGoRoutine int     `json:"num_goroutines"`
+	MemoryUsage  float64 `json:"memory_usage"`
+}
+
 type HealthReport struct {
-	Database bool   `json:"database"`
-	Version  string `json:"version"`
+	Status    string       `json:"status"`
+	Timestamp time.Time    `json:"timestamp"`
+	Database  DatabaseInfo `json:"database"`
+	System    SystemInfo   `json:"system"`
 }
 
 type CreateCompanyRequest struct {

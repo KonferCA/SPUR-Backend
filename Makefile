@@ -37,6 +37,9 @@ check-dev-db:
 	@docker exec nokap-postgres pg_isready
 clean-dev-db:
 	@docker stop nokap-postgres && docker rm nokap-postgres
+health-dev-db:
+	@echo "Checking server health..."
+	@curl -s localhost:8080/api/v1/health | jq || echo "Failed to connect to health endpoint"
 query:
 	@docker exec nokap-postgres psql -U postgres -d postgres -c "$(filter-out $@,$(MAKECMDGOALS))"
 # Prevent make from treating the query string as a target
