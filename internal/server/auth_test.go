@@ -8,6 +8,8 @@ import (
 	"os"
 	"testing"
 
+	"context"
+
 	"github.com/stretchr/testify/assert"
 )
 
@@ -27,6 +29,13 @@ func TestAuth(t *testing.T) {
 		t.Fatalf("failed to create server: %v", err)
 	}
 	defer s.DBPool.Close()
+
+	// clean up database before tests
+	ctx := context.Background()
+	_, err = s.DBPool.Exec(ctx, "DELETE FROM users WHERE email = $1", "test@example.com")
+	if err != nil {
+		t.Fatalf("failed to clean up database: %v", err)
+	}
 
 	// test signup
 	t.Run("signup", func(t *testing.T) {
@@ -48,7 +57,7 @@ func TestAuth(t *testing.T) {
 		assert.Equal(t, http.StatusCreated, rec.Code)
 
 		var response AuthResponse
-		err := json.Unmarshal(rec.Body.Bytes(), &response)
+		err := json.NewDecoder(rec.Body).Decode(&response)
 		assert.NoError(t, err)
 		assert.NotEmpty(t, response.Token)
 		assert.Equal(t, payload.Email, response.User.Email)
