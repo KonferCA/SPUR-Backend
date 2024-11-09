@@ -4,7 +4,6 @@ import (
 	"fmt"
 	"os"
 
-	"github.com/go-playground/validator/v10"
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
 	echoMiddleware "github.com/labstack/echo/v4/middleware"
@@ -41,9 +40,9 @@ func New() (*Server, error) {
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
-	e.Validator = &CustomValidator{
-		validator: validator.New(),
-	}
+	customValidator := NewCustomValidator()
+	fmt.Printf("Initializing validator: %+v\n", customValidator)
+	e.Validator = customValidator
 
 	server := &Server{
 		DBPool:       pool,
@@ -52,7 +51,8 @@ func New() (*Server, error) {
 
 	// setup api routes
 	server.setupV1Routes()
-	server.setupStartupRoutes()
+	server.setupCompanyRoutes()
+	server.setupResourceRequestRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -75,11 +75,19 @@ func (s *Server) setupV1Routes() {
 	}
 }
 
-func (s *Server) setupStartupRoutes() {
+func (s *Server) setupCompanyRoutes() {
 	s.apiV1.POST("/companies", s.handleCreateCompany)
 	s.apiV1.GET("/companies/:id", s.handleGetCompany)
 	s.apiV1.GET("/companies", s.handleListCompanies)
-	s.apiV1.GET("/companies/:id", s.handleDeleteCompany)
+	s.apiV1.DELETE("/companies/:id", s.handleDeleteCompany)
+}
+
+func (s *Server) setupResourceRequestRoutes() {
+	s.apiV1.POST("/resource-requests", s.handleCreateResourceRequest)
+	s.apiV1.GET("/resource-requests/:id", s.handleGetResourceRequest)
+	s.apiV1.GET("/resource-requests", s.handleListResourceRequests)
+	s.apiV1.PUT("/resource-requests/:id/status", s.handleUpdateResourceRequestStatus)
+	s.apiV1.DELETE("/resource-requests/:id", s.handleDeleteResourceRequest)
 }
 
 func (s *Server) setupHealthRoutes() {

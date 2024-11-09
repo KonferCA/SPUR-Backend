@@ -1,6 +1,7 @@
 package server
 
 import (
+	"fmt"
 	"net/http"
 	"time"
 
@@ -30,18 +31,33 @@ type HealthReport struct {
 }
 
 type CreateCompanyRequest struct {
-	OwnerUserID string `json:"owner_id" validate:"required"`
+	OwnerUserID string `json:"owner_user_id" validate:"required,uuid"`
 	Name        string `json:"name" validate:"required"`
-	Description string `json:"description" validate:"required"`
+	Description string `json:"description"`
+}
+
+type CreateResourceRequestRequest struct {
+	CompanyID    string `json:"company_id" validate:"required,uuid"`
+	ResourceType string `json:"resource_type" validate:"required"`
+	Description  string `json:"description"`
+	Status       string `json:"status" validate:"required"`
 }
 
 type CustomValidator struct {
 	validator *validator.Validate
 }
 
+func NewCustomValidator() *CustomValidator {
+	v := validator.New()
+	return &CustomValidator{validator: v}
+}
+
 func (cv *CustomValidator) Validate(i interface{}) error {
+	fmt.Printf("Validating struct: %+v\n", i)
 	if err := cv.validator.Struct(i); err != nil {
+		fmt.Printf("Validation error: %v\n", err)
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
+
 	return nil
 }

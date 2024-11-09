@@ -54,7 +54,11 @@ func (s *Server) handleGetCompany(c echo.Context) error {
 	queries := db.New(s.DBPool)
 	company, err := queries.GetCompanyByID(context.Background(), companyID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
+		if isNoRowsError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch company :(")
 	}
 
 	return c.JSON(http.StatusOK, company)
@@ -71,7 +75,6 @@ func (s *Server) handleListCompanies(c echo.Context) error {
 	return c.JSON(http.StatusOK, companies)
 }
 
-// TODO: Add + use auth to ensure only company owner can delete company
 func (s *Server) handleDeleteCompany(c echo.Context) error {
 	id := c.Param("id")
 	if id == "" {
@@ -84,9 +87,22 @@ func (s *Server) handleDeleteCompany(c echo.Context) error {
 	}
 
 	queries := db.New(s.DBPool)
-	err := queries.DeleteCompany(context.Background(), companyID)
+	_, err := queries.GetCompanyByID(context.Background(), companyID)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
+		if isNoRowsError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to verify company :(")
+	}
+
+	err = queries.DeleteCompany(context.Background(), companyID)
+	if err != nil {
+		if isNoRowsError(err) {
+			return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
+		}
+
+		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete company :(")
 	}
 
 	return c.NoContent(http.StatusNoContent)
