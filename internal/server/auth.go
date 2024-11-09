@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -29,7 +28,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 
 	ctx := context.Background()
 	existingUser, err := s.queries.GetUserByEmail(ctx, req.Email)
-	if err == nil && existingUser.ID.Bytes != [16]byte{} {
+	if err == nil && existingUser.ID.Valid {
 		return echo.NewHTTPError(http.StatusConflict, "email already registered")
 	}
 
@@ -49,7 +48,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user")
 	}
 
-	token, err := generateJWT(uuid.UUID(user.ID.Bytes).String(), user.Role)
+	token, err := generateJWT(user.ID.String(), user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
@@ -57,7 +56,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 	return c.JSON(http.StatusCreated, AuthResponse{
 		Token: token,
 		User: User{
-			ID:            uuid.UUID(user.ID.Bytes).String(),
+			ID:            user.ID.String(),
 			Email:         user.Email,
 			FirstName:     user.FirstName.String,
 			LastName:      user.LastName.String,
@@ -87,8 +86,7 @@ func (s *Server) handleSignin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid credentials")
 	}
 
-	userID := uuid.UUID(user.ID.Bytes).String()
-	token, err := generateJWT(userID, user.Role)
+	token, err := generateJWT(user.ID.String(), user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
@@ -96,7 +94,7 @@ func (s *Server) handleSignin(c echo.Context) error {
 	return c.JSON(http.StatusOK, AuthResponse{
 		Token: token,
 		User: User{
-			ID:            userID,
+			ID:            user.ID.String(),
 			Email:         user.Email,
 			FirstName:     user.FirstName.String,
 			LastName:      user.LastName.String,
