@@ -1,9 +1,12 @@
 # migration name
 NAME ?= name
-TEST_DB_PASSWORD ?= password
+# default database configuration
+TEST_DB_USER ?= postgres
+TEST_DB_PASSWORD ?= postgres
+TEST_DB_NAME ?= postgres
 TEST_DB_HOST_PORT ?= 5432
-TEST_DB_URL ?= postgres://postgres:$(TEST_DB_PASSWORD)@localhost:$(TEST_DB_HOST_PORT)/postgres?sslmode=disable 
-POSTGRESQL_VERSION=16
+TEST_DB_URL ?= postgres://$(TEST_DB_USER):$(TEST_DB_PASSWORD)@localhost:$(TEST_DB_HOST_PORT)/$(TEST_DB_NAME)?sslmode=disable
+POSTGRESQL_VERSION ?= 16
 
 .PHONY: query
 
@@ -54,14 +57,31 @@ test: start-testdb
 
 start-testdb:
 	@echo "Setting up PostgreSQL database..."
-	@docker run --name test-postgres -e POSTGRES_PASSWORD=$(TEST_DB_PASSWORD) -d -p "$(TEST_DB_HOST_PORT):5432" postgres:$(POSTGRESQL_VERSION)
+	@if ! docker ps -a --filter "name=test-postgres" --format '{{.Names}}' | grep -q '^test-postgres$$'; then \
+		docker run --name test-postgres \
+			-e POSTGRES_USER=$(TEST_DB_USER) \
+			-e POSTGRES_PASSWORD=$(TEST_DB_PASSWORD) \
+			-e POSTGRES_DB=$(TEST_DB_NAME) \
+			-d -p "$(TEST_DB_HOST_PORT):5432" \
+			postgres:$(POSTGRESQL_VERSION); \
+	elif ! docker ps --filter "name=test-postgres" --format '{{.Names}}' | grep -q '^test-postgres$$'; then \
+		docker start test-postgres; \
+	fi
 	@echo "Waiting for PostgreSQL to be ready..."
-	@until docker exec test-postgres pg_isready -U postgres; do sleep 1; done
-	@goose -dir ./migrations postgres $(TEST_DB_URL) up
+	@timeout 30s bash -c 'until docker exec test-postgres pg_isready -U $(TEST_DB_USER); do sleep 1; done'
+	@echo "Running migrations..."
+	@goose -dir .sqlc/migrations postgres "$(TEST_DB_URL)" up
 
 run-tests:
-	APP_ENV=test VERSION=0.0.0-test PASS_ENCRYPT_ALGO=md5 DB_URL=$(TEST_DB_URL) go test -v ./router ./store
+	@go test -v ./...
 
 stop-testdb:
-	@docker container stop test-postgres
-	@docker container rm -f test-postgres
+	@echo "Stopping test db..."
+	@docker container stop test-postgres || true
+	@echo "Removing test db..."
+	@docker container rm -f test-postgres || true
+
+# helper target to check database connection
+check-testdb:
+	@echo "Testing database connection..."
+	@docker exec test-postgres psql -U $(TEST_DB_USER) -d $(TEST_DB_NAME) -c "SELECT 1"
