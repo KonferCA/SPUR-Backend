@@ -14,6 +14,7 @@ import (
 
 type Server struct {
 	DBPool       *pgxpool.Pool
+	queries      *db.Queries
 	echoInstance *echo.Echo
 	apiV1        *echo.Group
 }
@@ -35,6 +36,9 @@ func New() (*Server, error) {
 		return nil, err
 	}
 
+	// Initialize queries
+	queries := db.New(pool)
+
 	e := echo.New()
 
 	e.Use(middleware.Logger())
@@ -46,11 +50,13 @@ func New() (*Server, error) {
 
 	server := &Server{
 		DBPool:       pool,
+		queries:      queries,
 		echoInstance: e,
 	}
 
 	// setup api routes
 	server.setupV1Routes()
+	server.setupAuthRoutes()
 	server.setupCompanyRoutes()
 	server.setupResourceRequestRoutes()
 	server.setupHealthRoutes()

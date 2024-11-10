@@ -18,6 +18,18 @@ type Company struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
+type User struct {
+	ID            pgtype.UUID
+	Email         string
+	PasswordHash  string
+	FirstName     pgtype.Text
+	LastName      pgtype.Text
+	Role          string
+	WalletAddress pgtype.Text
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
+}
+
 type ResourceRequest struct {
 	ID           pgtype.UUID
 	CompanyID    pgtype.UUID
