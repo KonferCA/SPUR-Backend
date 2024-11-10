@@ -41,6 +41,8 @@ func New() (*Server, error) {
 
 	e := echo.New()
 
+	e.HTTPErrorHandler = globalErrorHandler
+
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
