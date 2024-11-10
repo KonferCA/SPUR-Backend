@@ -2,7 +2,6 @@ package server
 
 import (
 	"context"
-	"fmt"
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
@@ -12,27 +11,19 @@ import (
 
 func (s *Server) handleCreateResourceRequest(c echo.Context) error {
 	var req CreateResourceRequestRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body :(")
+	if err := validateBody(c, &req); err != nil {
+		return err
 	}
 
-	if err := c.Validate(req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	var companyID pgtype.UUID
-	if err := companyID.Scan(req.CompanyID); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid company ID format :(")
+	companyID, err := validateUUID(req.CompanyID, "company")
+	if err != nil {
+		return err
 	}
 
 	queries := db.New(s.DBPool)
-	_, err := queries.GetCompanyByID(context.Background(), companyID)
+	_, err = queries.GetCompanyByID(context.Background(), companyID)
 	if err != nil {
-		if isNoRowsError(err) {
-			return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
-		}
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to verify company :(")
+		return handleDBError(err, "verify", "company")
 	}
 
 	params := db.CreateResourceRequestParams{
@@ -44,30 +35,22 @@ func (s *Server) handleCreateResourceRequest(c echo.Context) error {
 
 	request, err := queries.CreateResourceRequest(context.Background(), params)
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, fmt.Sprintf("Failed to create resource request: %v", err))
+		return handleDBError(err, "create", "resource request")
 	}
 
 	return c.JSON(http.StatusCreated, request)
 }
 
 func (s *Server) handleGetResourceRequest(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing resource request ID :(")
-	}
-
-	var requestID pgtype.UUID
-	if err := requestID.Scan(id); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid resource request ID format :(")
+	requestID, err := validateUUID(c.Param("id"), "resource request")
+	if err != nil {
+		return err
 	}
 
 	queries := db.New(s.DBPool)
 	request, err := queries.GetResourceRequestByID(context.Background(), requestID)
 	if err != nil {
-		if isNoRowsError(err) {
-			return echo.NewHTTPError(http.StatusNotFound, "Resource request not found :(")
-		}
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch resource request :(")
+		return handleDBError(err, "fetch", "resource request")
 	}
 
 	return c.JSON(http.StatusOK, request)
@@ -78,23 +61,19 @@ func (s *Server) handleListResourceRequests(c echo.Context) error {
 	queries := db.New(s.DBPool)
 
 	if companyID != "" {
-		var companyUUID pgtype.UUID
-		if err := companyUUID.Scan(companyID); err != nil {
-			return echo.NewHTTPError(http.StatusBadRequest, "Invalid company ID format :(")
+		companyUUID, err := validateUUID(companyID, "company")
+		if err != nil {
+			return err
 		}
 
-		_, err := queries.GetCompanyByID(context.Background(), companyUUID)
+		_, err = queries.GetCompanyByID(context.Background(), companyUUID)
 		if err != nil {
-			if isNoRowsError(err) {
-				return echo.NewHTTPError(http.StatusNotFound, "Company not found :(")
-			}
-
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to verify company :(")
+			return handleDBError(err, "verify", "company")
 		}
 
 		requests, err := queries.ListResourceRequestsByCompany(context.Background(), companyUUID)
 		if err != nil {
-			return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch resource requests :(")
+			return handleDBError(err, "fetch", "resource requests")
 		}
 
 		return c.JSON(http.StatusOK, requests)
@@ -102,41 +81,29 @@ func (s *Server) handleListResourceRequests(c echo.Context) error {
 
 	requests, err := queries.ListResourceRequests(context.Background())
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to fetch resource requests :(")
+		return handleDBError(err, "fetch", "resource requests")
 	}
 
 	return c.JSON(http.StatusOK, requests)
 }
 
 func (s *Server) handleUpdateResourceRequestStatus(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing resource request ID :(")
-	}
-
-	var requestID pgtype.UUID
-	if err := requestID.Scan(id); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid resource request ID format :(")
+	requestID, err := validateUUID(c.Param("id"), "resource request")
+	if err != nil {
+		return err
 	}
 
 	var status struct {
 		Status string `json:"status" validate:"required"`
 	}
-	if err := c.Bind(&status); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body :(")
-	}
-	if err := c.Validate(status); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+	if err := validateBody(c, &status); err != nil {
+		return err
 	}
 
 	queries := db.New(s.DBPool)
-	_, err := queries.GetResourceRequestByID(context.Background(), requestID)
+	_, err = queries.GetResourceRequestByID(context.Background(), requestID)
 	if err != nil {
-		if isNoRowsError(err) {
-			return echo.NewHTTPError(http.StatusNotFound, "Resource request not found :(")
-		}
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to verify resource request :(")
+		return handleDBError(err, "verify", "resource request")
 	}
 
 	request, err := queries.UpdateResourceRequestStatus(context.Background(), db.UpdateResourceRequestStatusParams{
@@ -144,40 +111,27 @@ func (s *Server) handleUpdateResourceRequestStatus(c echo.Context) error {
 		Status: status.Status,
 	})
 	if err != nil {
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to update resource request status :(")
+		return handleDBError(err, "update", "resource request status")
 	}
 
 	return c.JSON(http.StatusOK, request)
 }
 
 func (s *Server) handleDeleteResourceRequest(c echo.Context) error {
-	id := c.Param("id")
-	if id == "" {
-		return echo.NewHTTPError(http.StatusBadRequest, "Missing resource request ID :(")
-	}
-
-	var requestID pgtype.UUID
-	if err := requestID.Scan(id); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid resource request ID format :(")
+	requestID, err := validateUUID(c.Param("id"), "resource request")
+	if err != nil {
+		return err
 	}
 
 	queries := db.New(s.DBPool)
-	_, err := queries.GetResourceRequestByID(context.Background(), requestID)
+	_, err = queries.GetResourceRequestByID(context.Background(), requestID)
 	if err != nil {
-		if isNoRowsError(err) {
-			return echo.NewHTTPError(http.StatusNotFound, "Resource request not found :(")
-		}
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to verify resource request :(")
+		return handleDBError(err, "verify", "resource request")
 	}
 
 	err = queries.DeleteResourceRequest(context.Background(), requestID)
 	if err != nil {
-		if isNoRowsError(err) {
-			return echo.NewHTTPError(http.StatusNotFound, "Resource request not found :(")
-		}
-
-		return echo.NewHTTPError(http.StatusInternalServerError, "Failed to delete resource request :(")
+		handleDBError(err, "delete", "resource request")
 	}
 
 	return c.NoContent(http.StatusNoContent)
