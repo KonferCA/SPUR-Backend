@@ -29,3 +29,13 @@ type User struct {
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 }
+
+type ResourceRequest struct {
+	ID           pgtype.UUID
+	CompanyID    pgtype.UUID
+	ResourceType string
+	Description  pgtype.Text
+	Status       string
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+}

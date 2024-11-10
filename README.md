@@ -21,8 +21,9 @@ Make sure to download **VERSION 1.23** for best compatibility.
 
 1. Create a new PostgreSQL instance using docker with `make init-dev-db`
 2. Start PostgreSQL for development `make start-dev-db`
-3. Run migrations when ready `make up`
-4. Start development server `make dev`
+   - Check health of DB `make health-dev-db`
+4. Run migrations when ready `make up`
+5. Start development server `make dev`
 
 > Use `make query "SELECT ... FROM ..."` for quick query on the terminal.
 > You should also checkout the other available commands in the Makefile.
