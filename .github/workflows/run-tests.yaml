@@ -8,9 +8,12 @@ jobs:
     runs-on: ubuntu-latest
     services:
       postgres:
-        image: postgres
+        image: postgres:16
         env:
+          POSTGRES_USER: postgres
           POSTGRES_PASSWORD: postgres
+          POSTGRES_PORT: 5432
+          POSTGRES_DB: postgres
         options: >-
           --health-cmd pg_isready --health-interval 10s --health-timeout 5s --health-retries 5
         ports:
@@ -24,6 +27,10 @@ jobs:
           cache: true
       - name: Install dependencies
         run: go mod download
+      - name: Install Goose
+        run: go install github.com/pressly/goose/v3/cmd/goose@v3.22.1
+      - name: Run migrations
+        run: goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:postgres/postgres?sslmode=disable" up
       - name: Run tests
         run: go test -v ./...
       # Comment test results on the PR
