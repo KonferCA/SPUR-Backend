@@ -95,7 +95,7 @@ func TestAuth(t *testing.T) {
 		rec := httptest.NewRecorder()
 
 		s.echoInstance.ServeHTTP(rec, req)
-		assert.Equal(t, http.StatusOK, rec.Code)
+		assert.Equal(t, http.StatusCreated, rec.Code)
 
 		var response AuthResponse
 		err := json.Unmarshal(rec.Body.Bytes(), &response)
