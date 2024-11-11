@@ -35,8 +35,8 @@ jobs:
         id: tests
         continue-on-error: true  # allows the workflow to continue even if tests fail
         run: |
-          # run tests and tee output to both console and file
-          go test -v ./... 2>&1 | tee test_output.txt
+          # run tests with coverage and tee output to both console and file
+          go test -v -coverprofile=coverage.out ./... 2>&1 | tee test_output.txt
           echo "status=${?}" >> $GITHUB_OUTPUT  # save exit code
       - name: Generate coverage report
         run: go tool cover -html=coverage.out -o coverage.html
@@ -53,8 +53,14 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const coverageCmd = require('child_process').execSync('go tool cover -func=coverage.out | grep total:').toString();
-            const coverage = coverageCmd.split('\t').pop().trim();
+            let coverage = 'N/A';
+            
+            try {
+              const coverageCmd = require('child_process').execSync('go tool cover -func=coverage.out | grep total:').toString();
+              coverage = coverageCmd.split('\t').pop().trim();
+            } catch (error) {
+              console.log('Failed to get coverage:', error);
+            }
             
             const testStatus = '${{ steps.tests.outputs.status }}' === '0' ? 'success' : 'failure';
             const color = testStatus === 'success' ? '✅' : '❌';
