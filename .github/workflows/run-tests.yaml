@@ -63,10 +63,10 @@ jobs:
             const testStatus = hasFailed ? 'failure' : 'success';
             const color = testStatus === 'success' ? '✅' : '❌';
             
-            // Get coverage
+            // Get coverage from the server package test output
             let coverage = 'N/A';
             try {
-              const coverageMatch = testOutput.match(/coverage: (\d+\.\d+)% of statements/);
+              const coverageMatch = testOutput.match(/github\.com\/KonferCA\/NoKap\/internal\/server\s+(\d+\.\d+)%/);
               coverage = coverageMatch ? coverageMatch[1] + '%' : 'N/A';
             } catch (error) {
               console.log('Failed to get coverage:', error);
