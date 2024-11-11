@@ -33,11 +33,12 @@ jobs:
         run: goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
       - name: Run tests
         id: tests
-        continue-on-error: true  # allows the workflow to continue even if tests fail
+        continue-on-error: true
         run: |
-          # run tests with coverage and tee output to both console and file
+          # run tests and capture output
           go test -v -coverprofile=coverage.out ./... 2>&1 | tee test_output.txt
-          echo "status=${?}" >> $GITHUB_OUTPUT  # save exit code
+          # store the exit code explicitly
+          echo "::set-output name=exit_code::${PIPESTATUS[0]}"
       - name: Generate coverage report
         run: go tool cover -html=coverage.out -o coverage.html
       - name: Upload coverage report
@@ -53,29 +54,39 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            let coverage = 'N/A';
             
+            // Read test output
+            const testOutput = fs.readFileSync('test_output.txt', 'utf8');
+            
+            // Check if any tests failed
+            const hasFailed = testOutput.includes('FAIL') && !testOutput.includes('FAIL\t[build failed]');
+            const testStatus = hasFailed ? 'failure' : 'success';
+            const color = testStatus === 'success' ? '✅' : '❌';
+            
+            // Get coverage
+            let coverage = 'N/A';
             try {
-              const coverageCmd = require('child_process').execSync('go tool cover -func=coverage.out | grep total:').toString();
-              coverage = coverageCmd.split('\t').pop().trim();
+              const coverageMatch = testOutput.match(/coverage: (\d+\.\d+)% of statements/);
+              coverage = coverageMatch ? coverageMatch[1] + '%' : 'N/A';
             } catch (error) {
               console.log('Failed to get coverage:', error);
             }
             
-            const testStatus = '${{ steps.tests.outputs.status }}' === '0' ? 'success' : 'failure';
-            const color = testStatus === 'success' ? '✅' : '❌';
-            
+            // Parse test failures
             let failureDetails = '';
-            if (testStatus !== 'success') {
-              const testOutput = fs.readFileSync('test_output.txt', 'utf8');
-              const failureMatches = testOutput.match(/--- FAIL:.*?(?=---|\z)/gs) || [];
+            if (hasFailed) {
+              const failures = testOutput.match(/--- FAIL:.*?(?=(?:---|\z))/gs) || [];
+              const errors = testOutput.match(/\s+.*?_test\.go:\d+:.*?(?=\n\s*$)/gm) || [];
               
               failureDetails = `
               <details>
               <summary>❌ Test Failures</summary>
               
               \`\`\`
-              ${failureMatches.join('\n')}
+              ${failures.join('\n')}
+              
+              Error Details:
+              ${errors.join('\n')}
               \`\`\`
               </details>
               `;
