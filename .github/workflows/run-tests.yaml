@@ -38,7 +38,7 @@ jobs:
         run: go test -v ./...
       # Comment test results on the PR
       - name: Comment PR
-        if: always()
+        if: github.event_name == 'pull_request' && always()
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
