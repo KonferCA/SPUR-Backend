@@ -47,12 +47,18 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
+            const fs = require('fs');
+            const coverage = fs.readFileSync('coverage.out', 'utf8')
+              .split('\n')
+              .find(line => line.includes('total:'))
+              ?.split('\t')[1] || 'N/A';
+
             const testStatus = '${{ job.status }}';
             const color = testStatus === 'success' ? '✅' : '❌';
             const output = `### Test Results ${color}
             
             **Status**: ${testStatus}
-            **Coverage**: $(cat coverage.out | grep total | awk '{print $3}')
+            **Coverage**: ${coverage}
             **OS**: \`${{ runner.os }}\`
             
             <details>
