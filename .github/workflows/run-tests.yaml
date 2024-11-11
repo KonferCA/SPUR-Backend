@@ -48,10 +48,8 @@ jobs:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             const fs = require('fs');
-            const coverage = fs.readFileSync('coverage.out', 'utf8')
-              .split('\n')
-              .find(line => line.includes('total:'))
-              ?.split('\t')[1] || 'N/A';
+            const coverageCmd = require('child_process').execSync('go tool cover -func=coverage.out | grep total:').toString();
+            const coverage = coverageCmd.split('\t').pop().trim();
 
             const testStatus = '${{ job.status }}';
             const color = testStatus === 'success' ? '✅' : '❌';
