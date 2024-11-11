@@ -1,6 +1,9 @@
 name: Deploy Preview
 on:
-  push:
+  workflow_run:
+    workflows: ["Run Tests"]
+    types:
+      - completed
     branches:
       - 'main'
 jobs:
