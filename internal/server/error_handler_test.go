@@ -41,10 +41,28 @@ func TestGlobalErrorHandler(t *testing.T) {
 		{
 			name: "validation error",
 			handler: func(c echo.Context) error {
-				return validator.ValidationErrors{}
+				type TestStruct struct {
+					Email string `validate:"required,email"`
+					Age   int    `validate:"required,gt=0"`
+				}
+
+				v := validator.New()
+				err := v.Struct(TestStruct{
+					Email: "invalid-email",
+					Age:   -1,
+				})
+
+				return err
 			},
 			expectedStatus: http.StatusBadRequest,
-			expectedBody:   `{"status":400,"message":"validation failed"}`,
+			expectedBody: `{
+				"status": 400,
+				"message": "validation failed",
+				"errors": [
+					"Key: 'TestStruct.Email' Error:Field validation for 'Email' failed on the 'email' tag",
+					"Key: 'TestStruct.Age' Error:Field validation for 'Age' failed on the 'gt' tag"
+				]
+			}`,
 		},
 		{
 			name: "with request id",
