@@ -75,8 +75,8 @@ jobs:
             // Parse test failures
             let failureDetails = '';
             if (hasFailed) {
-              const failures = testOutput.match(/--- FAIL:.*?(?=(?:---|\z))/gs) || [];
-              const errors = testOutput.match(/\s+.*?_test\.go:\d+:.*?(?=\n\s*$)/gm) || [];
+              const errorTraces = testOutput.match(/\s+.*?_test\.go:\d+:[\s\S]*?Test:\s+.*$/gm) || [];
+              const failures = testOutput.match(/--- FAIL: .*?(?=(?:---|\z))/gs) || [];
               
               failureDetails = `
               <details>
@@ -86,7 +86,7 @@ jobs:
               ${failures.join('\n')}
               
               Error Details:
-              ${errors.join('\n')}
+              ${errorTraces.map(trace => trace.trim()).join('\n')}
               \`\`\`
               </details>
               `;
