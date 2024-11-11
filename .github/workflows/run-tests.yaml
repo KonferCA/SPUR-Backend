@@ -58,19 +58,18 @@ jobs:
             // Read test output
             const testOutput = fs.readFileSync('test_output.txt', 'utf8');
             
+            // Get coverage - look for the last coverage number in the output
+            let coverage = 'N/A';
+            const coverageMatches = testOutput.match(/coverage: (\d+\.\d+)% of statements/g) || [];
+            if (coverageMatches.length > 0) {
+              const lastMatch = coverageMatches[coverageMatches.length - 1];
+              coverage = lastMatch.match(/(\d+\.\d+)%/)[1] + '%';
+            }
+            
             // Check if any tests failed
             const hasFailed = testOutput.includes('FAIL') && !testOutput.includes('FAIL\t[build failed]');
             const testStatus = hasFailed ? 'failure' : 'success';
             const color = testStatus === 'success' ? '✅' : '❌';
-            
-            // Get coverage from the server package test output
-            let coverage = 'N/A';
-            try {
-              const coverageMatch = testOutput.match(/github\.com\/KonferCA\/NoKap\/internal\/server\s+(\d+\.\d+)%/);
-              coverage = coverageMatch ? coverageMatch[1] + '%' : 'N/A';
-            } catch (error) {
-              console.log('Failed to get coverage:', error);
-            }
             
             // Parse test failures
             let failureDetails = '';
