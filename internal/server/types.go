@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// TODO: Reorder types
+
 type DatabaseInfo struct {
 	Connected       bool    `json:"connected"`
 	LatencyMs       float64 `json:"latency_ms"`
@@ -87,4 +89,15 @@ type User struct {
 	LastName      string  `json:"last_name"`
 	Role          string  `json:"role"`
 	WalletAddress *string `json:"wallet_address,omitempty"`
+}
+
+type CreateCompanyFinancialsRequest struct {
+	FinancialYear  int32   `json:"financial_year" validate:"required"`
+	Revenue        float64 `json:"revenue" validate:"required"`
+	Expenses       float64 `json:"expenses" validate:"required"`
+	Profit         float64 `json:"profit" validate:"required"`
+	Sales          float64 `json:"sales" validate:"required"`
+	AmountRaised   float64 `json:"amount_raised" validate:"required"`
+	ARR            float64 `json:"arr" validate:"required"`
+	GrantsReceived float64 `json:"grants_received" validate:"required"`
 }
