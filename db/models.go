@@ -33,6 +33,17 @@ type CompanyFinancial struct {
 	UpdatedAt      pgtype.Timestamp
 }
 
+type Employee struct {
+	ID        pgtype.UUID
+	CompanyID pgtype.UUID
+	Name      string
+	Email     string
+	Role      string
+	Bio       pgtype.Text
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
 type ResourceRequest struct {
 	ID           pgtype.UUID
 	CompanyID    pgtype.UUID
