@@ -62,6 +62,7 @@ func New() (*Server, error) {
 	server.setupCompanyFinancialRoutes()
 	server.setupEmployeeRoutes()
 	server.setupCompanyDocumentRoutes()
+	server.setupCompanyQuestionsAnswersRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -121,6 +122,18 @@ func (s *Server) setupCompanyDocumentRoutes() {
 	s.apiV1.GET("/documents/:id", s.handleGetCompanyDocument)
 	s.apiV1.PUT("/documents/:id", s.handleUpdateCompanyDocument)
 	s.apiV1.DELETE("/documents/:id", s.handleDeleteCompanyDocument)
+}
+
+func (s *Server) setupCompanyQuestionsAnswersRoutes() {
+	s.apiV1.POST("/questions", s.handleCreateQuestion)
+	s.apiV1.GET("/questions", s.handleListQuestions)
+	s.apiV1.GET("/questions/:id", s.handleGetQuestion)
+
+	s.apiV1.POST("/companies/:id/answers", s.handleCreateCompanyAnswer)
+	s.apiV1.GET("/companies/:id/answers", s.handleListCompanyAnswers)
+	s.apiV1.GET("/companies/:company_id/answers/:question_id", s.handleGetCompanyAnswer)
+	s.apiV1.PUT("/companies/:company_id/answers/:question_id", s.handleUpdateCompanyAnswer)
+	s.apiV1.DELETE("/companies/:company_id/answers/:question_id", s.handleDeleteCompanyAnswer)
 }
 
 func (s *Server) setupHealthRoutes() {
