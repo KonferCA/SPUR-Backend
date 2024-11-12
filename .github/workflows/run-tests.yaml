@@ -35,11 +35,116 @@ jobs:
       - name: Run migrations
         run: goose -dir .sqlc/migrations postgres "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable" up
       - name: Run tests
-        run: go test -v ./...
-      # Comment test results on the PR
+        id: tests
+        continue-on-error: true
+        run: |
+          # run tests and capture output
+          go test -v -coverprofile=coverage.out ./... 2>&1 | tee test_output.txt
+          # store the exit code explicitly
+          echo "::set-output name=exit_code::${PIPESTATUS[0]}"
+      - name: Generate coverage report
+        run: go tool cover -html=coverage.out -o coverage.html
+      - name: Upload coverage report
+        if: ${{ !env.ACT && github.event_name == 'pull_request' }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-report
+          path: coverage.html
       - name: Comment PR
-        if: github.event_name == 'pull_request' && always()
+        if: ${{ !env.ACT && github.event_name == 'pull_request' && always() }}
         uses: actions/github-script@v7
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: "const output = `#### Test Results\nTests: ${{ job.status }}\n\n*Workflow triggered by @${{ github.actor }}, ran on \\`${{ runner.os }}\\`*`;\n  \ngithub.rest.issues.createComment({\n  issue_number: context.issue.number,\n  owner: context.repo.owner,\n  repo: context.repo.repo,\n  body: output\n})\n"
+          script: |
+            const fs = require('fs');
+            
+            // Read test output
+            const testOutput = fs.readFileSync('test_output.txt', 'utf8');
+            
+            // Get coverage - look for the last coverage number in the output
+            let coverage = 'N/A';
+            const coverageMatches = testOutput.match(/coverage: (\d+\.\d+)% of statements/g) || [];
+            if (coverageMatches.length > 0) {
+              const lastMatch = coverageMatches[coverageMatches.length - 1];
+              coverage = lastMatch.match(/(\d+\.\d+)%/)[1] + '%';
+            }
+            
+            // Check if any tests failed
+            const hasFailed = testOutput.includes('FAIL') && !testOutput.includes('FAIL\t[build failed]');
+            const testStatus = hasFailed ? 'failure' : 'success';
+            const color = testStatus === 'success' ? '✅' : '❌';
+            
+            // Parse test failures
+            let failureDetails = '';
+            if (hasFailed) {
+              const errorTraces = testOutput.match(/\s+.*?_test\.go:\d+:[\s\S]*?Test:\s+.*$/gm) || [];
+              const failures = testOutput.match(/--- FAIL: .*?(?=(?:---|\z))/gs) || [];
+              
+              failureDetails = `
+              <details>
+              <summary>❌ Test Failures</summary>
+              
+              \`\`\`
+              ${failures.join('\n')}
+              
+              Error Details:
+              ${errorTraces.map(trace => trace.trim()).join('\n')}
+              \`\`\`
+              </details>
+              `;
+            }
+
+            const output = `### Test Results ${color}
+            
+            **Status**: ${testStatus}
+            **Coverage**: ${coverage}
+            **OS**: \`${{ runner.os }}\`
+            
+            ${failureDetails}
+            
+            <details>
+            <summary>Test Details</summary>
+            
+            * Triggered by: @${{ github.actor }}
+            * Commit: ${{ github.sha }}
+            * Branch: ${{ github.ref }}
+            * Workflow: ${{ github.workflow }}
+            </details>`;
+
+            // Find existing comment
+            const { data: comments } = await github.rest.issues.listComments({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              issue_number: context.issue.number,
+            });
+
+            const botComment = comments.find(comment => 
+              comment.user.type === 'Bot' && 
+              comment.body.includes('### Test Results')
+            );
+
+            if (botComment) {
+              // Update existing comment
+              await github.rest.issues.updateComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                comment_id: botComment.id,
+                body: output
+              });
+            } else {
+              // Create new comment
+              await github.rest.issues.createComment({
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                issue_number: context.issue.number,
+                body: output
+              });
+            }
+      - uses: actions/cache@v4
+        with:
+          path: |
+            ~/.cache/go-build
+            ~/go/pkg/mod
+          key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+          restore-keys: |
+            ${{ runner.os }}-go-

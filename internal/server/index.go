@@ -63,7 +63,8 @@ func New(testing bool) (*Server, error) {
 		)
 	}
 
-	// setup middlewares
+	// setup error handler and middlewares
+	e.HTTPErrorHandler = globalErrorHandler
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 	e.Use(apiLimiter.RateLimit()) // global rate limit
