@@ -126,3 +126,16 @@ type UpdateCompanyDocumentRequest struct {
 	DocumentType string `json:"document_type" validate:"required"`
 	FileURL      string `json:"file_url" validate:"required,url"`
 }
+
+type CreateQuestionRequest struct {
+	QuestionText string `json:"question_text" validate:"required"`
+}
+
+type CreateCompanyAnswerRequest struct {
+	QuestionID string `json:"question_id" validate:"required,uuid"`
+	AnswerText string `json:"answer_text" validate:"required"`
+}
+
+type UpdateCompanyAnswerRequest struct {
+	AnswerText string `json:"answer_text" validate:"required"`
+}
