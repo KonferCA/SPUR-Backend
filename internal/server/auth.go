@@ -13,6 +13,7 @@ import (
 
 func (s *Server) setupAuthRoutes() {
 	auth := s.apiV1.Group("/auth")
+	auth.Use(s.authLimiter.RateLimit()) // special rate limit for auth routes
 	auth.POST("/signup", s.handleSignup)
 	auth.POST("/signin", s.handleSignin)
 }

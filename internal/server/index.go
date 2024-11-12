@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"os"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgxpool"
 	"github.com/labstack/echo/v4"
@@ -17,11 +18,13 @@ type Server struct {
 	queries      *db.Queries
 	echoInstance *echo.Echo
 	apiV1        *echo.Group
+	authLimiter  *middleware.RateLimiter
+	apiLimiter   *middleware.RateLimiter
 }
 
 // Create a new Server instance and registers all routes and middlewares.
 // Initialize database pool connection.
-func New() (*Server, error) {
+func New(testing bool) (*Server, error) {
 	connStr := fmt.Sprintf(
 		"host=%s port=%s user=%s password=%s dbname=%s sslmode=%s",
 		os.Getenv("DB_HOST"),
@@ -41,10 +44,30 @@ func New() (*Server, error) {
 
 	e := echo.New()
 
-	e.HTTPErrorHandler = globalErrorHandler
+	// create rate limiters
+	var authLimiter, apiLimiter *middleware.RateLimiter
 
+	if testing {
+		authLimiter = middleware.NewTestRateLimiter(20)
+		apiLimiter = middleware.NewTestRateLimiter(100)
+	} else {
+		authLimiter = middleware.NewRateLimiter(
+			20,             // 20 requests
+			5*time.Minute,  // per 5 minutes
+			15*time.Minute, // block for 15 minutes if exceeded
+		)
+		apiLimiter = middleware.NewRateLimiter(
+			100,           // 100 requests
+			time.Minute,   // per minute
+			5*time.Minute, // block for 5 minutes if exceeded
+		)
+	}
+
+	// setup error handler and middlewares
+	e.HTTPErrorHandler = globalErrorHandler
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
+	e.Use(apiLimiter.RateLimit()) // global rate limit
 
 	customValidator := NewCustomValidator()
 	fmt.Printf("Initializing validator: %+v\n", customValidator)
@@ -54,6 +77,8 @@ func New() (*Server, error) {
 		DBPool:       pool,
 		queries:      queries,
 		echoInstance: e,
+		authLimiter:  authLimiter,
+		apiLimiter:   apiLimiter,
 	}
 
 	// setup api routes
