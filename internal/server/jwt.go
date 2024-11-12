@@ -13,6 +13,7 @@ type JWTClaims struct {
 	jwt.StandardClaims
 }
 
+// Generates JWT tokens for the given user. Returns the access token, refresh token and error (nil if no error)
 func generateJWT(userID string, role string) (string, string, error) {
 	accessTokenClaims := JWTClaims{
 		UserID: userID,
