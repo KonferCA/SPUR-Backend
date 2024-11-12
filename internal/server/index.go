@@ -60,6 +60,7 @@ func New() (*Server, error) {
 	server.setupCompanyRoutes()
 	server.setupResourceRequestRoutes()
 	server.setupCompanyFinancialRoutes()
+	server.setupEmployeeRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -103,6 +104,14 @@ func (s *Server) setupCompanyFinancialRoutes() {
 	s.apiV1.PUT("/companies/:id/financials", s.handleUpdateCompanyFinancials)
 	s.apiV1.DELETE("/companies/:id/financials", s.handleDeleteCompanyFinancials)
 	s.apiV1.GET("/companies/:id/financials/latest", s.handleGetLatestCompanyFinancials)
+}
+
+func (s *Server) setupEmployeeRoutes() {
+	s.apiV1.POST("/employees", s.handleCreateEmployee)
+	s.apiV1.GET("/employees", s.handleListEmployees)
+	s.apiV1.GET("/employees/:id", s.handleGetEmployee)
+	s.apiV1.PUT("/employees/:id", s.handleUpdateEmployee)
+	s.apiV1.DELETE("/employees/:id", s.handleDeleteEmployee)
 }
 
 func (s *Server) setupHealthRoutes() {
