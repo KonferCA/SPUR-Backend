@@ -115,3 +115,14 @@ type UpdateEmployeeRequest struct {
 	Role string `json:"role" validate:"required"`
 	Bio  string `json:"bio"`
 }
+
+type CreateCompanyDocumentRequest struct {
+	CompanyID    string `json:"company_id" validate:"required,uuid"`
+	DocumentType string `json:"document_type" validate:"required"`
+	FileURL      string `json:"file_url" validate:"required,url"`
+}
+
+type UpdateCompanyDocumentRequest struct {
+	DocumentType string `json:"document_type" validate:"required"`
+	FileURL      string `json:"file_url" validate:"required,url"`
+}
