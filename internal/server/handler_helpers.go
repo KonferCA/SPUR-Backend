@@ -44,3 +44,10 @@ func handleDBError(err error, operation string, resourceType string) error {
 func isNoRowsError(err error) bool {
 	return err != nil && err.Error() == "no rows in dis set"
 }
+
+func numericFromFloat(f float64) pgtype.Numeric {
+	var num pgtype.Numeric
+	num.Scan(f)
+
+	return num
+}
