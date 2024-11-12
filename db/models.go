@@ -42,6 +42,15 @@ type CompanyFinancial struct {
 	UpdatedAt      pgtype.Timestamp
 }
 
+type CompanyQuestionAnswer struct {
+	ID         pgtype.UUID
+	CompanyID  pgtype.UUID
+	QuestionID pgtype.UUID
+	AnswerText string
+	CreatedAt  pgtype.Timestamp
+	UpdatedAt  pgtype.Timestamp
+}
+
 type Employee struct {
 	ID        pgtype.UUID
 	CompanyID pgtype.UUID
@@ -51,6 +60,13 @@ type Employee struct {
 	Bio       pgtype.Text
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
+}
+
+type Question struct {
+	ID           pgtype.UUID
+	QuestionText string
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
 }
 
 type ResourceRequest struct {
