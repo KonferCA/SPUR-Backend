@@ -24,7 +24,7 @@ func TestAuth(t *testing.T) {
 	os.Setenv("DB_SSLMODE", "disable")
 
 	// create server
-	s, err := New()
+	s, err := New(true)
 	if err != nil {
 		t.Fatalf("failed to create server: %v", err)
 	}
