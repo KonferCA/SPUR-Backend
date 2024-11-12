@@ -59,6 +59,7 @@ func New() (*Server, error) {
 	server.setupAuthRoutes()
 	server.setupCompanyRoutes()
 	server.setupResourceRequestRoutes()
+	server.setupCompanyFinancialRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -94,6 +95,14 @@ func (s *Server) setupResourceRequestRoutes() {
 	s.apiV1.GET("/resource-requests", s.handleListResourceRequests)
 	s.apiV1.PUT("/resource-requests/:id/status", s.handleUpdateResourceRequestStatus)
 	s.apiV1.DELETE("/resource-requests/:id", s.handleDeleteResourceRequest)
+}
+
+func (s *Server) setupCompanyFinancialRoutes() {
+	s.apiV1.POST("/companies/:id/financials", s.handleCreateCompanyFinancials)
+	s.apiV1.GET("/companies/:id/financials", s.handleGetCompanyFinancials)
+	s.apiV1.PUT("/companies/:id/financials", s.handleUpdateCompanyFinancials)
+	s.apiV1.DELETE("/companies/:id/financials", s.handleDeleteCompanyFinancials)
+	s.apiV1.GET("/companies/:id/financials/latest", s.handleGetLatestCompanyFinancials)
 }
 
 func (s *Server) setupHealthRoutes() {
