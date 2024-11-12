@@ -50,13 +50,14 @@ func (s *Server) handleSignup(c echo.Context) error {
 	}
 
 	userID := convert.UUIDToString(user.ID)
-	token, err := generateJWT(userID, user.Role)
+	accessToken, refreshToken, err := generateJWT(userID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
 
 	return c.JSON(http.StatusCreated, AuthResponse{
-		Token: token,
+		AcessToken:   accessToken,
+		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
 			Email:         user.Email,
@@ -89,13 +90,14 @@ func (s *Server) handleSignin(c echo.Context) error {
 	}
 
 	userID := convert.UUIDToString(user.ID)
-	token, err := generateJWT(userID, user.Role)
+	accessToken, refreshToken, err := generateJWT(userID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
 
 	return c.JSON(http.StatusOK, AuthResponse{
-		Token: token,
+		AcessToken:   accessToken,
+		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
 			Email:         user.Email,
