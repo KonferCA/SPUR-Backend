@@ -18,16 +18,19 @@ type Company struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
-type User struct {
-	ID            pgtype.UUID
-	Email         string
-	PasswordHash  string
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	Role          string
-	WalletAddress pgtype.Text
-	CreatedAt     pgtype.Timestamp
-	UpdatedAt     pgtype.Timestamp
+type CompanyFinancial struct {
+	ID             pgtype.UUID
+	CompanyID      pgtype.UUID
+	FinancialYear  int32
+	Revenue        pgtype.Numeric
+	Expenses       pgtype.Numeric
+	Profit         pgtype.Numeric
+	Sales          pgtype.Numeric
+	AmountRaised   pgtype.Numeric
+	Arr            pgtype.Numeric
+	GrantsReceived pgtype.Numeric
+	CreatedAt      pgtype.Timestamp
+	UpdatedAt      pgtype.Timestamp
 }
 
 type ResourceRequest struct {
@@ -38,4 +41,16 @@ type ResourceRequest struct {
 	Status       string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
+}
+
+type User struct {
+	ID            pgtype.UUID
+	Email         string
+	PasswordHash  string
+	FirstName     pgtype.Text
+	LastName      pgtype.Text
+	Role          string
+	WalletAddress pgtype.Text
+	CreatedAt     pgtype.Timestamp
+	UpdatedAt     pgtype.Timestamp
 }
