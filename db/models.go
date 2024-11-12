@@ -18,6 +18,15 @@ type Company struct {
 	UpdatedAt   pgtype.Timestamp
 }
 
+type CompanyDocument struct {
+	ID           pgtype.UUID
+	CompanyID    pgtype.UUID
+	DocumentType string
+	FileUrl      string
+	CreatedAt    pgtype.Timestamp
+	UpdatedAt    pgtype.Timestamp
+}
+
 type CompanyFinancial struct {
 	ID             pgtype.UUID
 	CompanyID      pgtype.UUID
