@@ -19,7 +19,7 @@ func ProtectAPI() echo.MiddlewareFunc {
 			if len(parts) != 2 || strings.ToLower(parts[0]) != "bearer" {
 				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid authorization header. Only accept Bearer token.")
 			}
-			claims, err := jwt.VerifyToken(parts[0])
+			claims, err := jwt.VerifyToken(parts[1])
 			if err != nil {
 				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
 			}
