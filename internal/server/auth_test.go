@@ -58,7 +58,7 @@ func TestAuth(t *testing.T) {
 		var response AuthResponse
 		err := json.NewDecoder(rec.Body).Decode(&response)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, response.AcessToken)
+		assert.NotEmpty(t, response.AccessToken)
 		assert.NotEmpty(t, response.RefreshToken)
 		assert.Equal(t, payload.Email, response.User.Email)
 	})
@@ -100,7 +100,7 @@ func TestAuth(t *testing.T) {
 		var response AuthResponse
 		err := json.Unmarshal(rec.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, response.AcessToken)
+		assert.NotEmpty(t, response.AccessToken)
 		assert.NotEmpty(t, response.RefreshToken)
 		assert.Equal(t, payload.Email, response.User.Email)
 	})
