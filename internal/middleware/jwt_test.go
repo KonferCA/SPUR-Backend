@@ -12,10 +12,11 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestProtectAPIMiddleware(t *testing.T) {
+func TestProtectAPIForAccessToken(t *testing.T) {
 	os.Setenv("JWT_SECRET", "secret")
 	e := echo.New()
-	e.Use(ProtectAPI())
+
+	e.Use(ProtectAPI(jwt.ACCESS_TOKEN_TYPE))
 
 	e.GET("/protected", func(c echo.Context) error {
 		return c.String(http.StatusOK, "protected resource")
@@ -24,16 +25,8 @@ func TestProtectAPIMiddleware(t *testing.T) {
 	// generate valid tokens
 	userID := "user-id"
 	role := "user-role"
-	validAccessToken, validRefreshToken, err := jwt.Generate(userID, role)
+	accessToken, refreshToken, err := jwt.Generate(userID, role)
 	assert.Nil(t, err)
-
-	// generate invalid tokens
-	os.Setenv("JWT_SECRET", "wrong-secret")
-	invalidAccessToken, invalidRefreshToken, err := jwt.Generate(userID, role)
-	assert.Nil(t, err)
-
-	// reset the secret
-	os.Setenv("JWT_SECRET", "secret")
 
 	tests := []struct {
 		name         string
@@ -41,24 +34,128 @@ func TestProtectAPIMiddleware(t *testing.T) {
 		token        string
 	}{
 		{
-			name:         "Valid access token",
+			name:         "Accept access token",
 			expectedCode: http.StatusOK,
-			token:        validAccessToken,
+			token:        accessToken,
 		},
 		{
-			name:         "Valid refresh token",
+			name:         "Reject refresh token",
+			expectedCode: http.StatusUnauthorized,
+			token:        refreshToken,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", test.token))
+			e.ServeHTTP(rec, req)
+			assert.Equal(t, test.expectedCode, rec.Code)
+		})
+	}
+
+	// change jwt secret and generate new tokens
+	os.Setenv("JWT_SECRET", "another-secret")
+	accessToken, refreshToken, err = jwt.Generate(userID, role)
+	assert.Nil(t, err)
+
+	// reset secret
+	os.Setenv("JWT_SECRET", "secret")
+
+	tests = []struct {
+		name         string
+		expectedCode int
+		token        string
+	}{
+		{
+			name:         "Reject access token signed with wrong secret",
+			expectedCode: http.StatusUnauthorized,
+			token:        accessToken,
+		},
+		{
+			name:         "Reject refresh token signed with wrong secret",
+			expectedCode: http.StatusUnauthorized,
+			token:        refreshToken,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", test.token))
+			e.ServeHTTP(rec, req)
+			assert.Equal(t, test.expectedCode, rec.Code)
+		})
+	}
+}
+
+func TestProtectAPIForRefreshToken(t *testing.T) {
+	os.Setenv("JWT_SECRET", "secret")
+	e := echo.New()
+
+	e.Use(ProtectAPI(jwt.REFRESH_TOKEN_TYPE))
+
+	e.GET("/protected", func(c echo.Context) error {
+		return c.String(http.StatusOK, "protected resource")
+	})
+
+	// generate valid tokens
+	userID := "user-id"
+	role := "user-role"
+	accessToken, refreshToken, err := jwt.Generate(userID, role)
+	assert.Nil(t, err)
+
+	tests := []struct {
+		name         string
+		expectedCode int
+		token        string
+	}{
+		{
+			name:         "Reject access token",
+			expectedCode: http.StatusUnauthorized,
+			token:        accessToken,
+		},
+		{
+			name:         "Accept refresh token",
 			expectedCode: http.StatusOK,
-			token:        validRefreshToken,
+			token:        refreshToken,
+		},
+	}
+
+	for _, test := range tests {
+		t.Run(test.name, func(t *testing.T) {
+			req := httptest.NewRequest(http.MethodGet, "/protected", nil)
+			rec := httptest.NewRecorder()
+			req.Header.Set(echo.HeaderAuthorization, fmt.Sprintf("Bearer %s", test.token))
+			e.ServeHTTP(rec, req)
+			assert.Equal(t, test.expectedCode, rec.Code)
+		})
+	}
+
+	// change jwt secret and generate new tokens
+	os.Setenv("JWT_SECRET", "another-secret")
+	accessToken, refreshToken, err = jwt.Generate(userID, role)
+	assert.Nil(t, err)
+
+	// reset secret
+	os.Setenv("JWT_SECRET", "secret")
+
+	tests = []struct {
+		name         string
+		expectedCode int
+		token        string
+	}{
+		{
+			name:         "Reject access token signed with wrong secret",
+			expectedCode: http.StatusUnauthorized,
+			token:        accessToken,
 		},
 		{
-			name:         "Invalid access token",
+			name:         "Reject refresh token signed with wrong secret",
 			expectedCode: http.StatusUnauthorized,
-			token:        invalidAccessToken,
-		},
-		{
-			name:         "Invalid refresh token",
-			expectedCode: http.StatusUnauthorized,
-			token:        invalidRefreshToken,
+			token:        refreshToken,
 		},
 	}
 

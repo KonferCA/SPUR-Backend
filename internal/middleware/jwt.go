@@ -6,12 +6,14 @@ import (
 
 	"github.com/KonferCA/NoKap/internal/jwt"
 	"github.com/labstack/echo/v4"
+	"github.com/rs/zerolog/log"
 )
 
 const JWT_CLAIMS = "MIDDLEWARE_JWT_CLAIMS"
 
 // Middleware that validate the "Authorization" header for a Bearer token.
-func ProtectAPI() echo.MiddlewareFunc {
+// Matches the received token with the accepted token type.
+func ProtectAPI(acceptTokenType string) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authorization := c.Request().Header.Get(echo.HeaderAuthorization)
@@ -21,7 +23,13 @@ func ProtectAPI() echo.MiddlewareFunc {
 			}
 			claims, err := jwt.VerifyToken(parts[1])
 			if err != nil {
-				return echo.NewHTTPError(http.StatusUnauthorized, err.Error())
+				log.Error().Err(err).Msg("JWT verification error")
+				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired token.")
+			}
+			// match token type
+			if acceptTokenType != claims.TokenType {
+				log.Error().Str("accept", acceptTokenType).Str("received", claims.TokenType).Msg("Invalid token type.")
+				return echo.NewHTTPError(http.StatusUnauthorized, "Invalid or expired token.")
 			}
 			c.Set(JWT_CLAIMS, claims)
 			return next(c)
