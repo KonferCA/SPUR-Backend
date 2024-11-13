@@ -57,7 +57,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, AuthResponse{
-		AcessToken:   accessToken,
+		AccessToken:   accessToken,
 		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
