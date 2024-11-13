@@ -11,7 +11,7 @@ import (
 const JWT_CLAIMS = "MIDDLEWARE_JWT_CLAIMS"
 
 // Middleware that validate the "Authorization" header for a Bearer token.
-func RequiredToken() echo.MiddlewareFunc {
+func ProtectAPI() echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			authorization := c.Request().Header.Get(echo.HeaderAuthorization)
