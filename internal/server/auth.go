@@ -57,7 +57,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusCreated, AuthResponse{
-		AccessToken:   accessToken,
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
@@ -97,7 +97,7 @@ func (s *Server) handleSignin(c echo.Context) error {
 	}
 
 	return c.JSON(http.StatusOK, AuthResponse{
-		AcessToken:   accessToken,
+		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
