@@ -69,7 +69,7 @@ func New(testing bool) (*Server, error) {
 	e.Use(echoMiddleware.Recover())
 	e.Use(apiLimiter.RateLimit()) // global rate limit
 
-	customValidator := NewCustomValidator()
+	customValidator := middleware.NewRequestBodyValidator()
 	fmt.Printf("Initializing validator: %+v\n", customValidator)
 	e.Validator = customValidator
 

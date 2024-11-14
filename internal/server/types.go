@@ -1,12 +1,7 @@
 package server
 
 import (
-	"fmt"
-	"net/http"
 	"time"
-
-	"github.com/go-playground/validator/v10"
-	"github.com/labstack/echo/v4"
 )
 
 type DatabaseInfo struct {
@@ -41,25 +36,6 @@ type CreateResourceRequestRequest struct {
 	ResourceType string `json:"resource_type" validate:"required"`
 	Description  string `json:"description"`
 	Status       string `json:"status" validate:"required"`
-}
-
-type CustomValidator struct {
-	validator *validator.Validate
-}
-
-func NewCustomValidator() *CustomValidator {
-	v := validator.New()
-	return &CustomValidator{validator: v}
-}
-
-func (cv *CustomValidator) Validate(i interface{}) error {
-	fmt.Printf("Validating struct: %+v\n", i)
-	if err := cv.validator.Struct(i); err != nil {
-		fmt.Printf("Validation error: %v\n", err)
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
-	}
-
-	return nil
 }
 
 type SignupRequest struct {
