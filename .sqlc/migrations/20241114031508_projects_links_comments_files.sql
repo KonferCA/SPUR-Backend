@@ -37,17 +37,28 @@ CREATE TABLE project_links (
     updated_at TIMESTAMP DEFAULT NOW()
 );
 
+CREATE TABLE project_tags (
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
+    tag_id UUID NOT NULL REFERENCES tags(id),
+    created_at TIMESTAMP DEFAULT NOW(),
+    UNIQUE(project_id, tag_id)
+);
+
 CREATE INDEX idx_projects_company ON projects(company_id);
 CREATE INDEX idx_project_files_project ON project_files(project_id);
 CREATE INDEX idx_project_comments_project ON project_comments(project_id);
 CREATE INDEX idx_project_comments_user ON project_comments(user_id);
 CREATE INDEX idx_project_links_project ON project_links(project_id);
+CREATE INDEX idx_project_tags_project ON project_tags(project_id);
+CREATE INDEX idx_project_tags_tag ON project_tags(tag_id);
 -- +goose StatementEnd
 
 -- +goose Down
 -- +goose StatementBegin
-DROP TABLE project_links;
-DROP TABLE project_comments;
-DROP TABLE project_files;
-DROP TABLE projects;
+DROP TABLE IF EXISTS project_links CASCADE;
+DROP TABLE IF EXISTS project_comments CASCADE;
+DROP TABLE IF EXISTS project_files CASCADE;
+DROP TABLE IF EXISTS project_tags CASCADE;
+DROP TABLE IF EXISTS projects CASCADE;
 -- +goose StatementEnd
