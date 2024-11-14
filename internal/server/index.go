@@ -63,6 +63,7 @@ func New() (*Server, error) {
 	server.setupEmployeeRoutes()
 	server.setupCompanyDocumentRoutes()
 	server.setupCompanyQuestionsAnswersRoutes()
+	server.setupProjectRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -134,6 +135,25 @@ func (s *Server) setupCompanyQuestionsAnswersRoutes() {
 	s.apiV1.GET("/companies/:company_id/answers/:question_id", s.handleGetCompanyAnswer)
 	s.apiV1.PUT("/companies/:company_id/answers/:question_id", s.handleUpdateCompanyAnswer)
 	s.apiV1.DELETE("/companies/:company_id/answers/:question_id", s.handleDeleteCompanyAnswer)
+}
+
+func (s *Server) setupProjectRoutes() {
+	s.apiV1.POST("/projects", s.handleCreateProject)
+	s.apiV1.GET("/projects/:id", s.handleGetProject)
+	s.apiV1.GET("/projects", s.handleListProjects)
+	s.apiV1.DELETE("/projects/:id", s.handleDeleteProject)
+
+	s.apiV1.POST("/projects/:project_id/files", s.handleCreateProjectFile)
+	s.apiV1.GET("/projects/:project_id/files", s.handleListProjectFiles)
+	s.apiV1.DELETE("/projects/files/:id", s.handleDeleteProjectFile)
+
+	s.apiV1.POST("/projects/:project_id/comments", s.handleCreateProjectComment)
+	s.apiV1.GET("/projects/:project_id/comments", s.handleListProjectComments)
+	s.apiV1.DELETE("/projects/comments/:id", s.handleDeleteProjectComment)
+
+	s.apiV1.POST("/projects/:project_id/links", s.handleCreateProjectLink)
+	s.apiV1.GET("/projects/:project_id/links", s.handleListProjectLinks)
+	s.apiV1.DELETE("/projects/links/:id", s.handleDeleteProjectLink)
 }
 
 func (s *Server) setupHealthRoutes() {
