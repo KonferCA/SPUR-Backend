@@ -62,6 +62,19 @@ type Employee struct {
 	UpdatedAt pgtype.Timestamp
 }
 
+type FundingTransaction struct {
+	ID                pgtype.UUID
+	ProjectID         pgtype.UUID
+	Amount            pgtype.Numeric
+	Currency          string
+	TransactionHash   string
+	FromWalletAddress string
+	ToWalletAddress   string
+	Status            string
+	CreatedAt         pgtype.Timestamp
+	UpdatedAt         pgtype.Timestamp
+}
+
 type Project struct {
 	ID          pgtype.UUID
 	CompanyID   pgtype.UUID
