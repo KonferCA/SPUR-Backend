@@ -64,6 +64,7 @@ func New() (*Server, error) {
 	server.setupCompanyDocumentRoutes()
 	server.setupCompanyQuestionsAnswersRoutes()
 	server.setupProjectRoutes()
+	server.setupTagRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -154,6 +155,17 @@ func (s *Server) setupProjectRoutes() {
 	s.apiV1.POST("/projects/:project_id/links", s.handleCreateProjectLink)
 	s.apiV1.GET("/projects/:project_id/links", s.handleListProjectLinks)
 	s.apiV1.DELETE("/projects/links/:id", s.handleDeleteProjectLink)
+
+	s.apiV1.POST("/projects/:project_id/tags", s.handleAddProjectTag)
+	s.apiV1.GET("/projects/:project_id/tags", s.handleListProjectTags)
+	s.apiV1.DELETE("/projects/:project_id/tags/:tag_id", s.handleDeleteProjectTag)
+}
+
+func (s *Server) setupTagRoutes() {
+	s.apiV1.POST("/tags", s.handleCreateTag)
+	s.apiV1.GET("/tags/:id", s.handleGetTag)
+	s.apiV1.GET("/tags", s.handleListTags)
+	s.apiV1.DELETE("/tags/:id", s.handleDeleteTag)
 }
 
 func (s *Server) setupHealthRoutes() {
