@@ -62,6 +62,43 @@ type Employee struct {
 	UpdatedAt pgtype.Timestamp
 }
 
+type Project struct {
+	ID          pgtype.UUID
+	CompanyID   pgtype.UUID
+	Title       string
+	Description pgtype.Text
+	Status      string
+	CreatedAt   pgtype.Timestamp
+	UpdatedAt   pgtype.Timestamp
+}
+
+type ProjectComment struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	UserID    pgtype.UUID
+	Comment   string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+type ProjectFile struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	FileType  string
+	FileUrl   string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
+type ProjectLink struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	LinkType  string
+	Url       string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
+}
+
 type Question struct {
 	ID           pgtype.UUID
 	QuestionText string
