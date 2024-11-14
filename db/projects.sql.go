@@ -11,6 +11,33 @@ import (
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
+const addProjectTag = `-- name: AddProjectTag :one
+INSERT INTO project_tags (
+    project_id,
+    tag_id
+) VALUES (
+    $1, $2
+)
+RETURNING id, project_id, tag_id, created_at
+`
+
+type AddProjectTagParams struct {
+	ProjectID pgtype.UUID
+	TagID     pgtype.UUID
+}
+
+func (q *Queries) AddProjectTag(ctx context.Context, arg AddProjectTagParams) (ProjectTag, error) {
+	row := q.db.QueryRow(ctx, addProjectTag, arg.ProjectID, arg.TagID)
+	var i ProjectTag
+	err := row.Scan(
+		&i.ID,
+		&i.ProjectID,
+		&i.TagID,
+		&i.CreatedAt,
+	)
+	return i, err
+}
+
 const createProject = `-- name: CreateProject :one
 INSERT INTO projects (
     company_id,
@@ -67,7 +94,6 @@ type CreateProjectCommentParams struct {
 	Comment   string
 }
 
-// Project Comments queries
 func (q *Queries) CreateProjectComment(ctx context.Context, arg CreateProjectCommentParams) (ProjectComment, error) {
 	row := q.db.QueryRow(ctx, createProjectComment, arg.ProjectID, arg.UserID, arg.Comment)
 	var i ProjectComment
@@ -99,7 +125,6 @@ type CreateProjectFileParams struct {
 	FileUrl   string
 }
 
-// Project Files queries
 func (q *Queries) CreateProjectFile(ctx context.Context, arg CreateProjectFileParams) (ProjectFile, error) {
 	row := q.db.QueryRow(ctx, createProjectFile, arg.ProjectID, arg.FileType, arg.FileUrl)
 	var i ProjectFile
@@ -131,7 +156,6 @@ type CreateProjectLinkParams struct {
 	Url       string
 }
 
-// Project Links queries
 func (q *Queries) CreateProjectLink(ctx context.Context, arg CreateProjectLinkParams) (ProjectLink, error) {
 	row := q.db.QueryRow(ctx, createProjectLink, arg.ProjectID, arg.LinkType, arg.Url)
 	var i ProjectLink
@@ -144,6 +168,16 @@ func (q *Queries) CreateProjectLink(ctx context.Context, arg CreateProjectLinkPa
 		&i.UpdatedAt,
 	)
 	return i, err
+}
+
+const deleteAllProjectTags = `-- name: DeleteAllProjectTags :exec
+DELETE FROM project_tags 
+WHERE project_id = $1
+`
+
+func (q *Queries) DeleteAllProjectTags(ctx context.Context, projectID pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, deleteAllProjectTags, projectID)
+	return err
 }
 
 const deleteProject = `-- name: DeleteProject :exec
@@ -183,6 +217,21 @@ WHERE id = $1
 
 func (q *Queries) DeleteProjectLink(ctx context.Context, id pgtype.UUID) error {
 	_, err := q.db.Exec(ctx, deleteProjectLink, id)
+	return err
+}
+
+const deleteProjectTag = `-- name: DeleteProjectTag :exec
+DELETE FROM project_tags 
+WHERE project_id = $1 AND tag_id = $2
+`
+
+type DeleteProjectTagParams struct {
+	ProjectID pgtype.UUID
+	TagID     pgtype.UUID
+}
+
+func (q *Queries) DeleteProjectTag(ctx context.Context, arg DeleteProjectTagParams) error {
+	_, err := q.db.Exec(ctx, deleteProjectTag, arg.ProjectID, arg.TagID)
 	return err
 }
 
@@ -315,6 +364,50 @@ func (q *Queries) ListProjectLinks(ctx context.Context, projectID pgtype.UUID) (
 			&i.Url,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const listProjectTags = `-- name: ListProjectTags :many
+SELECT 
+    pt.id, pt.project_id, pt.tag_id, pt.created_at,
+    t.name as tag_name
+FROM project_tags pt
+JOIN tags t ON t.id = pt.tag_id
+WHERE pt.project_id = $1
+ORDER BY t.name
+`
+
+type ListProjectTagsRow struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	TagID     pgtype.UUID
+	CreatedAt pgtype.Timestamp
+	TagName   string
+}
+
+func (q *Queries) ListProjectTags(ctx context.Context, projectID pgtype.UUID) ([]ListProjectTagsRow, error) {
+	rows, err := q.db.Query(ctx, listProjectTags, projectID)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []ListProjectTagsRow
+	for rows.Next() {
+		var i ListProjectTagsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.ProjectID,
+			&i.TagID,
+			&i.CreatedAt,
+			&i.TagName,
 		); err != nil {
 			return nil, err
 		}

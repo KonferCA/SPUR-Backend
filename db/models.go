@@ -99,6 +99,13 @@ type ProjectLink struct {
 	UpdatedAt pgtype.Timestamp
 }
 
+type ProjectTag struct {
+	ID        pgtype.UUID
+	ProjectID pgtype.UUID
+	TagID     pgtype.UUID
+	CreatedAt pgtype.Timestamp
+}
+
 type Question struct {
 	ID           pgtype.UUID
 	QuestionText string
@@ -114,6 +121,13 @@ type ResourceRequest struct {
 	Status       string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
+}
+
+type Tag struct {
+	ID        pgtype.UUID
+	Name      string
+	CreatedAt pgtype.Timestamp
+	UpdatedAt pgtype.Timestamp
 }
 
 type User struct {
