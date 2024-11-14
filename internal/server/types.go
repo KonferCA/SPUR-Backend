@@ -175,3 +175,17 @@ type AddProjectTagRequest struct {
 type CreateTagRequest struct {
 	Name string `json:"name" validate:"required"`
 }
+
+type CreateFundingTransactionRequest struct {
+	ProjectID         string `json:"project_id" validate:"required,uuid"`
+	Amount            string `json:"amount" validate:"required"`
+	Currency          string `json:"currency" validate:"required,len=3"`
+	TransactionHash   string `json:"transaction_hash" validate:"required"`
+	FromWalletAddress string `json:"from_wallet_address" validate:"required"`
+	ToWalletAddress   string `json:"to_wallet_address" validate:"required"`
+	Status            string `json:"status" validate:"required,oneof=PENDING COMPLETED FAILED"`
+}
+
+type UpdateFundingTransactionStatusRequest struct {
+	Status string `json:"status" validate:"required,oneof=PENDING COMPLETED FAILED"`
+}
