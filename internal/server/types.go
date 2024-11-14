@@ -167,3 +167,11 @@ type CreateProjectLinkRequest struct {
 	LinkType string `json:"link_type" validate:"required"`
 	URL      string `json:"url" validate:"required,url"`
 }
+
+type AddProjectTagRequest struct {
+	TagID string `json:"tag_id" validate:"required,uuid"`
+}
+
+type CreateTagRequest struct {
+	Name string `json:"name" validate:"required"`
+}
