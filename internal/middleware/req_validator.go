@@ -31,9 +31,7 @@ func NewRequestBodyValidator() *RequestBodyValidator {
 }
 
 // Middleware that validates the incoming request body with the given structType.
-// Optionally pass any argument(s) like the fmt.Sprintf() method to customize
-// a log message before ending the connection.
-func ValidateRequestBody(structType reflect.Type, args ...interface{}) echo.MiddlewareFunc {
+func ValidateRequestBody(structType reflect.Type) echo.MiddlewareFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			reqStruct := reflect.New(structType)
