@@ -36,7 +36,6 @@ RETURNING *;
 DELETE FROM projects
 WHERE id = $1;
 
--- Project Files queries
 -- name: CreateProjectFile :one
 INSERT INTO project_files (
     project_id,
@@ -56,7 +55,6 @@ ORDER BY created_at DESC;
 DELETE FROM project_files
 WHERE id = $1;
 
--- Project Comments queries
 -- name: CreateProjectComment :one
 INSERT INTO project_comments (
     project_id,
@@ -82,7 +80,6 @@ ORDER BY pc.created_at DESC;
 DELETE FROM project_comments
 WHERE id = $1;
 
--- Project Links queries
 -- name: CreateProjectLink :one
 INSERT INTO project_links (
     project_id,
@@ -101,3 +98,29 @@ ORDER BY created_at DESC;
 -- name: DeleteProjectLink :exec
 DELETE FROM project_links
 WHERE id = $1;
+
+-- name: AddProjectTag :one
+INSERT INTO project_tags (
+    project_id,
+    tag_id
+) VALUES (
+    $1, $2
+)
+RETURNING *;
+
+-- name: ListProjectTags :many
+SELECT 
+    pt.*,
+    t.name as tag_name
+FROM project_tags pt
+JOIN tags t ON t.id = pt.tag_id
+WHERE pt.project_id = $1
+ORDER BY t.name;
+
+-- name: DeleteProjectTag :exec
+DELETE FROM project_tags 
+WHERE project_id = $1 AND tag_id = $2;
+
+-- name: DeleteAllProjectTags :exec
+DELETE FROM project_tags 
+WHERE project_id = $1;
