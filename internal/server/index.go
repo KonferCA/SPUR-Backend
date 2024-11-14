@@ -41,6 +41,7 @@ func New() (*Server, error) {
 
 	e := echo.New()
 
+	e.Debug = true
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 
@@ -65,6 +66,7 @@ func New() (*Server, error) {
 	server.setupCompanyQuestionsAnswersRoutes()
 	server.setupProjectRoutes()
 	server.setupTagRoutes()
+	server.setupFundingTransactionRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -166,6 +168,14 @@ func (s *Server) setupTagRoutes() {
 	s.apiV1.GET("/tags/:id", s.handleGetTag)
 	s.apiV1.GET("/tags", s.handleListTags)
 	s.apiV1.DELETE("/tags/:id", s.handleDeleteTag)
+}
+
+func (s *Server) setupFundingTransactionRoutes() {
+	s.apiV1.POST("/funding-transactions", s.handleCreateFundingTransaction)
+	s.apiV1.GET("/funding-transactions/:id", s.handleGetFundingTransaction)
+	s.apiV1.GET("/funding-transactions", s.handleListFundingTransactions)
+	s.apiV1.PUT("/funding-transactions/:id/status", s.handleUpdateFundingTransactionStatus)
+	s.apiV1.DELETE("/funding-transactions/:id", s.handleDeleteFundingTransaction)
 }
 
 func (s *Server) setupHealthRoutes() {
