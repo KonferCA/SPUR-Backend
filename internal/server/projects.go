@@ -297,3 +297,79 @@ func (s *Server) handleDeleteProjectLink(c echo.Context) error {
 
 	return c.NoContent(http.StatusNoContent)
 }
+
+func (s *Server) handleAddProjectTag(c echo.Context) error {
+	projectID, err := validateUUID(c.Param("project_id"), "project")
+	if err != nil {
+		return err
+	}
+
+	var req AddProjectTagRequest
+	if err := validateBody(c, &req); err != nil {
+		return err
+	}
+
+	tagID, err := validateUUID(req.TagID, "tag")
+	if err != nil {
+		return err
+	}
+
+	queries := db.New(s.DBPool)
+
+	_, err = queries.GetProject(context.Background(), projectID)
+	if err != nil {
+		return handleDBError(err, "verify", "project")
+	}
+
+	params := db.AddProjectTagParams{
+		ProjectID: projectID,
+		TagID:     tagID,
+	}
+
+	projectTag, err := queries.AddProjectTag(context.Background(), params)
+	if err != nil {
+		return handleDBError(err, "create", "project tag")
+	}
+
+	return c.JSON(http.StatusCreated, projectTag)
+}
+
+func (s *Server) handleListProjectTags(c echo.Context) error {
+	projectID, err := validateUUID(c.Param("project_id"), "project")
+	if err != nil {
+		return err
+	}
+
+	queries := db.New(s.DBPool)
+	tags, err := queries.ListProjectTags(context.Background(), projectID)
+	if err != nil {
+		return handleDBError(err, "fetch", "project tags")
+	}
+
+	return c.JSON(http.StatusOK, tags)
+}
+
+func (s *Server) handleDeleteProjectTag(c echo.Context) error {
+	projectID, err := validateUUID(c.Param("project_id"), "project")
+	if err != nil {
+		return err
+	}
+
+	tagID, err := validateUUID(c.Param("tag_id"), "tag")
+	if err != nil {
+		return err
+	}
+
+	queries := db.New(s.DBPool)
+	params := db.DeleteProjectTagParams{
+		ProjectID: projectID,
+		TagID:     tagID,
+	}
+
+	err = queries.DeleteProjectTag(context.Background(), params)
+	if err != nil {
+		return handleDBError(err, "delete", "project tag")
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
