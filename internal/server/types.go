@@ -139,3 +139,31 @@ type CreateCompanyAnswerRequest struct {
 type UpdateCompanyAnswerRequest struct {
 	AnswerText string `json:"answer_text" validate:"required"`
 }
+
+type CreateProjectRequest struct {
+	CompanyID   string `json:"company_id" validate:"required"`
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description"`
+	Status      string `json:"status" validate:"required"`
+}
+
+type UpdateProjectRequest struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description"`
+	Status      string `json:"status" validate:"required"`
+}
+
+type CreateProjectFileRequest struct {
+	FileType string `json:"file_type" validate:"required"`
+	FileURL  string `json:"file_url" validate:"required,url"`
+}
+
+type CreateProjectCommentRequest struct {
+	UserID  string `json:"user_id" validate:"required"`
+	Comment string `json:"comment" validate:"required"`
+}
+
+type CreateProjectLinkRequest struct {
+	LinkType string `json:"link_type" validate:"required"`
+	URL      string `json:"url" validate:"required,url"`
+}
