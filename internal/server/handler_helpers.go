@@ -3,6 +3,7 @@ package server
 import (
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
@@ -69,4 +70,32 @@ func validateNumeric(value string) (pgtype.Numeric, error) {
 	}
 
 	return num, nil
+}
+
+func validateTimestamp(timeStr string, fieldName string) (pgtype.Timestamp, error) {
+	var ts pgtype.Timestamp
+	if timeStr == "" {
+		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s :(", fieldName))
+	}
+
+	parsedTime, err := time.Parse(time.RFC3339, timeStr)
+	if err != nil {
+		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s format :(", fieldName))
+	}
+
+	ts.Time = parsedTime
+	ts.Valid = true
+	return ts, nil
+}
+
+func validateTimeRange(startTime, endTime pgtype.Timestamp) error {
+	if !startTime.Valid || !endTime.Valid {
+		return echo.NewHTTPError(http.StatusBadRequest, "Invalid time values :(")
+	}
+
+	if endTime.Time.Before(startTime.Time) {
+		return echo.NewHTTPError(http.StatusBadRequest, "End time cannot be before start time :(")
+	}
+
+	return nil
 }
