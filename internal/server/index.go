@@ -67,6 +67,7 @@ func New() (*Server, error) {
 	server.setupProjectRoutes()
 	server.setupTagRoutes()
 	server.setupFundingTransactionRoutes()
+	server.setupMeetingRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -176,6 +177,14 @@ func (s *Server) setupFundingTransactionRoutes() {
 	s.apiV1.GET("/funding-transactions", s.handleListFundingTransactions)
 	s.apiV1.PUT("/funding-transactions/:id/status", s.handleUpdateFundingTransactionStatus)
 	s.apiV1.DELETE("/funding-transactions/:id", s.handleDeleteFundingTransaction)
+}
+
+func (s *Server) setupMeetingRoutes() {
+	s.apiV1.POST("/meetings", s.handleCreateMeeting)
+	s.apiV1.GET("/meetings/:id", s.handleGetMeeting)
+	s.apiV1.GET("/meetings", s.handleListMeetings)
+	s.apiV1.PUT("/meetings/:id", s.handleUpdateMeeting)
+	s.apiV1.DELETE("/meetings/:id", s.handleDeleteMeeting)
 }
 
 func (s *Server) setupHealthRoutes() {
