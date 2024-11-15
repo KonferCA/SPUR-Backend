@@ -189,3 +189,21 @@ type CreateFundingTransactionRequest struct {
 type UpdateFundingTransactionStatusRequest struct {
 	Status string `json:"status" validate:"required,oneof=PENDING COMPLETED FAILED"`
 }
+
+type CreateMeetingRequest struct {
+	ProjectID         string `json:"project_id" validate:"required,uuid"`
+	ScheduledByUserID string `json:"scheduled_by_user_id" validate:"required,uuid"`
+	StartTime         string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime           string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL        string `json:"meeting_url" validate:"omitempty,url"`
+	Location          string `json:"location"`
+	Notes             string `json:"notes"`
+}
+
+type UpdateMeetingRequest struct {
+	StartTime  string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime    string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL string `json:"meeting_url" validate:"omitempty,url"`
+	Location   string `json:"location"`
+	Notes      string `json:"notes"`
+}
