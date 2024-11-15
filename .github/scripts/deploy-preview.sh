@@ -48,6 +48,8 @@ else
 fi
 
 # Database migrations
+echo "Fix migrations from timestampd to sequential"
+goose fix -dir .sqlc/migrations
 echo "Run migrations"
 goose -dir .sqlc/migrations postgres \
     "postgres://$DB_USER:$DB_PASSWORD@$DB_HOST:$DB_PORT/$DB_NAME?sslmode=$DB_SSLMODE" up
