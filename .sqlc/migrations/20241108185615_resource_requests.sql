@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE resource_requests (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     resource_type VARCHAR(100) NOT NULL,
     description TEXT,

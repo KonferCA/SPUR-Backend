@@ -44,6 +44,8 @@ func New(testing bool) (*Server, error) {
 
 	e := echo.New()
 
+	e.Debug = true
+
 	// create rate limiters
 	var authLimiter, apiLimiter *middleware.RateLimiter
 
@@ -65,6 +67,7 @@ func New(testing bool) (*Server, error) {
 
 	// setup error handler and middlewares
 	e.HTTPErrorHandler = globalErrorHandler
+
 	e.Use(middleware.Logger())
 	e.Use(echoMiddleware.Recover())
 	e.Use(apiLimiter.RateLimit()) // global rate limit
@@ -86,6 +89,14 @@ func New(testing bool) (*Server, error) {
 	server.setupAuthRoutes()
 	server.setupCompanyRoutes()
 	server.setupResourceRequestRoutes()
+	server.setupCompanyFinancialRoutes()
+	server.setupEmployeeRoutes()
+	server.setupCompanyDocumentRoutes()
+	server.setupCompanyQuestionsAnswersRoutes()
+	server.setupProjectRoutes()
+	server.setupTagRoutes()
+	server.setupFundingTransactionRoutes()
+	server.setupMeetingRoutes()
 	server.setupHealthRoutes()
 
 	// setup static routes
@@ -121,6 +132,88 @@ func (s *Server) setupResourceRequestRoutes() {
 	s.apiV1.GET("/resource-requests", s.handleListResourceRequests)
 	s.apiV1.PUT("/resource-requests/:id/status", s.handleUpdateResourceRequestStatus)
 	s.apiV1.DELETE("/resource-requests/:id", s.handleDeleteResourceRequest)
+}
+
+func (s *Server) setupCompanyFinancialRoutes() {
+	s.apiV1.POST("/companies/:id/financials", s.handleCreateCompanyFinancials)
+	s.apiV1.GET("/companies/:id/financials", s.handleGetCompanyFinancials)
+	s.apiV1.PUT("/companies/:id/financials", s.handleUpdateCompanyFinancials)
+	s.apiV1.DELETE("/companies/:id/financials", s.handleDeleteCompanyFinancials)
+	s.apiV1.GET("/companies/:id/financials/latest", s.handleGetLatestCompanyFinancials)
+}
+
+func (s *Server) setupEmployeeRoutes() {
+	s.apiV1.POST("/employees", s.handleCreateEmployee)
+	s.apiV1.GET("/employees", s.handleListEmployees)
+	s.apiV1.GET("/employees/:id", s.handleGetEmployee)
+	s.apiV1.PUT("/employees/:id", s.handleUpdateEmployee)
+	s.apiV1.DELETE("/employees/:id", s.handleDeleteEmployee)
+}
+
+func (s *Server) setupCompanyDocumentRoutes() {
+	s.apiV1.POST("/companies/:id/documents", s.handleCreateCompanyDocument)
+	s.apiV1.GET("/companies/:id/documents", s.handleListCompanyDocuments)
+	s.apiV1.GET("/documents/:id", s.handleGetCompanyDocument)
+	s.apiV1.PUT("/documents/:id", s.handleUpdateCompanyDocument)
+	s.apiV1.DELETE("/documents/:id", s.handleDeleteCompanyDocument)
+}
+
+func (s *Server) setupCompanyQuestionsAnswersRoutes() {
+	s.apiV1.POST("/questions", s.handleCreateQuestion)
+	s.apiV1.GET("/questions", s.handleListQuestions)
+	s.apiV1.GET("/questions/:id", s.handleGetQuestion)
+
+	s.apiV1.POST("/companies/:id/answers", s.handleCreateCompanyAnswer)
+	s.apiV1.GET("/companies/:id/answers", s.handleListCompanyAnswers)
+	s.apiV1.GET("/companies/:company_id/answers/:question_id", s.handleGetCompanyAnswer)
+	s.apiV1.PUT("/companies/:company_id/answers/:question_id", s.handleUpdateCompanyAnswer)
+	s.apiV1.DELETE("/companies/:company_id/answers/:question_id", s.handleDeleteCompanyAnswer)
+}
+
+func (s *Server) setupProjectRoutes() {
+	s.apiV1.POST("/projects", s.handleCreateProject)
+	s.apiV1.GET("/projects/:id", s.handleGetProject)
+	s.apiV1.GET("/projects", s.handleListProjects)
+	s.apiV1.DELETE("/projects/:id", s.handleDeleteProject)
+
+	s.apiV1.POST("/projects/:project_id/files", s.handleCreateProjectFile)
+	s.apiV1.GET("/projects/:project_id/files", s.handleListProjectFiles)
+	s.apiV1.DELETE("/projects/files/:id", s.handleDeleteProjectFile)
+
+	s.apiV1.POST("/projects/:project_id/comments", s.handleCreateProjectComment)
+	s.apiV1.GET("/projects/:project_id/comments", s.handleListProjectComments)
+	s.apiV1.DELETE("/projects/comments/:id", s.handleDeleteProjectComment)
+
+	s.apiV1.POST("/projects/:project_id/links", s.handleCreateProjectLink)
+	s.apiV1.GET("/projects/:project_id/links", s.handleListProjectLinks)
+	s.apiV1.DELETE("/projects/links/:id", s.handleDeleteProjectLink)
+
+	s.apiV1.POST("/projects/:project_id/tags", s.handleAddProjectTag)
+	s.apiV1.GET("/projects/:project_id/tags", s.handleListProjectTags)
+	s.apiV1.DELETE("/projects/:project_id/tags/:tag_id", s.handleDeleteProjectTag)
+}
+
+func (s *Server) setupTagRoutes() {
+	s.apiV1.POST("/tags", s.handleCreateTag)
+	s.apiV1.GET("/tags/:id", s.handleGetTag)
+	s.apiV1.GET("/tags", s.handleListTags)
+	s.apiV1.DELETE("/tags/:id", s.handleDeleteTag)
+}
+
+func (s *Server) setupFundingTransactionRoutes() {
+	s.apiV1.POST("/funding-transactions", s.handleCreateFundingTransaction)
+	s.apiV1.GET("/funding-transactions/:id", s.handleGetFundingTransaction)
+	s.apiV1.GET("/funding-transactions", s.handleListFundingTransactions)
+	s.apiV1.PUT("/funding-transactions/:id/status", s.handleUpdateFundingTransactionStatus)
+	s.apiV1.DELETE("/funding-transactions/:id", s.handleDeleteFundingTransaction)
+}
+
+func (s *Server) setupMeetingRoutes() {
+	s.apiV1.POST("/meetings", s.handleCreateMeeting)
+	s.apiV1.GET("/meetings/:id", s.handleGetMeeting)
+	s.apiV1.GET("/meetings", s.handleListMeetings)
+	s.apiV1.PUT("/meetings/:id", s.handleUpdateMeeting)
+	s.apiV1.DELETE("/meetings/:id", s.handleDeleteMeeting)
 }
 
 func (s *Server) setupHealthRoutes() {

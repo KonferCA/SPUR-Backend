@@ -9,6 +9,8 @@ import (
 	"github.com/labstack/echo/v4"
 )
 
+// TODO: Reorder types
+
 type DatabaseInfo struct {
 	Connected       bool    `json:"connected"`
 	LatencyMs       float64 `json:"latency_ms"`
@@ -88,4 +90,121 @@ type User struct {
 	LastName      string  `json:"last_name"`
 	Role          string  `json:"role"`
 	WalletAddress *string `json:"wallet_address,omitempty"`
+}
+
+type CreateCompanyFinancialsRequest struct {
+	FinancialYear  int32   `json:"financial_year" validate:"required"`
+	Revenue        float64 `json:"revenue" validate:"required"`
+	Expenses       float64 `json:"expenses" validate:"required"`
+	Profit         float64 `json:"profit" validate:"required"`
+	Sales          float64 `json:"sales" validate:"required"`
+	AmountRaised   float64 `json:"amount_raised" validate:"required"`
+	ARR            float64 `json:"arr" validate:"required"`
+	GrantsReceived float64 `json:"grants_received" validate:"required"`
+}
+
+type CreateEmployeeRequest struct {
+	CompanyID string `json:"company_id" validate:"required,uuid"`
+	Name      string `json:"name" validate:"required"`
+	Email     string `json:"email" validate:"required,email"`
+	Role      string `json:"role" validate:"required"`
+	Bio       string `json:"bio"`
+}
+
+type UpdateEmployeeRequest struct {
+	Name string `json:"name" validate:"required"`
+	Role string `json:"role" validate:"required"`
+	Bio  string `json:"bio"`
+}
+
+type CreateCompanyDocumentRequest struct {
+	CompanyID    string `json:"company_id" validate:"required,uuid"`
+	DocumentType string `json:"document_type" validate:"required"`
+	FileURL      string `json:"file_url" validate:"required,url"`
+}
+
+type UpdateCompanyDocumentRequest struct {
+	DocumentType string `json:"document_type" validate:"required"`
+	FileURL      string `json:"file_url" validate:"required,url"`
+}
+
+type CreateQuestionRequest struct {
+	QuestionText string `json:"question_text" validate:"required"`
+}
+
+type CreateCompanyAnswerRequest struct {
+	QuestionID string `json:"question_id" validate:"required,uuid"`
+	AnswerText string `json:"answer_text" validate:"required"`
+}
+
+type UpdateCompanyAnswerRequest struct {
+	AnswerText string `json:"answer_text" validate:"required"`
+}
+
+type CreateProjectRequest struct {
+	CompanyID   string `json:"company_id" validate:"required"`
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description"`
+	Status      string `json:"status" validate:"required"`
+}
+
+type UpdateProjectRequest struct {
+	Title       string `json:"title" validate:"required"`
+	Description string `json:"description"`
+	Status      string `json:"status" validate:"required"`
+}
+
+type CreateProjectFileRequest struct {
+	FileType string `json:"file_type" validate:"required"`
+	FileURL  string `json:"file_url" validate:"required,url"`
+}
+
+type CreateProjectCommentRequest struct {
+	UserID  string `json:"user_id" validate:"required"`
+	Comment string `json:"comment" validate:"required"`
+}
+
+type CreateProjectLinkRequest struct {
+	LinkType string `json:"link_type" validate:"required"`
+	URL      string `json:"url" validate:"required,url"`
+}
+
+type AddProjectTagRequest struct {
+	TagID string `json:"tag_id" validate:"required,uuid"`
+}
+
+type CreateTagRequest struct {
+	Name string `json:"name" validate:"required"`
+}
+
+type CreateFundingTransactionRequest struct {
+	ProjectID         string `json:"project_id" validate:"required,uuid"`
+	Amount            string `json:"amount" validate:"required"`
+	Currency          string `json:"currency" validate:"required,len=3"`
+	TransactionHash   string `json:"transaction_hash" validate:"required"`
+	FromWalletAddress string `json:"from_wallet_address" validate:"required"`
+	ToWalletAddress   string `json:"to_wallet_address" validate:"required"`
+	Status            string `json:"status" validate:"required,oneof=PENDING COMPLETED FAILED"`
+}
+
+type UpdateFundingTransactionStatusRequest struct {
+	Status string `json:"status" validate:"required,oneof=PENDING COMPLETED FAILED"`
+}
+
+type CreateMeetingRequest struct {
+	ProjectID         string `json:"project_id" validate:"required,uuid"`
+	ScheduledByUserID string `json:"scheduled_by_user_id" validate:"required,uuid"`
+	StartTime         string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime           string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL        string `json:"meeting_url" validate:"omitempty,url"`
+	Location          string `json:"location"`
+	Notes             string `json:"notes"`
+}
+
+type UpdateMeetingRequest struct {
+	StartTime  string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime    string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL string `json:"meeting_url" validate:"omitempty,url"`
+	Location   string `json:"location"`
+	Notes      string `json:"notes"`
 }

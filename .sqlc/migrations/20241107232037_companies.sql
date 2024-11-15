@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE companies (
-    id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
+    id UUID PRIMARY KEY DEFAULT gen_random_uuid() NOT NULL,
     owner_user_id UUID NOT NULL,
     name VARCHAR(255) NOT NULL,
     description TEXT,
