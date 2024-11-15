@@ -1,6 +1,7 @@
 package middleware
 
 import (
+	"fmt"
 	"net/http"
 	"reflect"
 
@@ -37,7 +38,7 @@ func ValidateRequestBody(structType reflect.Type) echo.MiddlewareFunc {
 			reqStruct := reflect.New(structType)
 
 			if err := c.Bind(reqStruct.Interface()); err != nil {
-				return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body.")
+				return echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid request body: %v", err))
 			}
 
 			if err := c.Validate(reqStruct.Interface()); err != nil {
