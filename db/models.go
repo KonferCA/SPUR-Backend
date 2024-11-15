@@ -75,6 +75,19 @@ type FundingTransaction struct {
 	UpdatedAt         pgtype.Timestamp
 }
 
+type Meeting struct {
+	ID                pgtype.UUID
+	ProjectID         pgtype.UUID
+	ScheduledByUserID pgtype.UUID
+	StartTime         pgtype.Timestamp
+	EndTime           pgtype.Timestamp
+	MeetingUrl        pgtype.Text
+	Location          pgtype.Text
+	Notes             pgtype.Text
+	CreatedAt         pgtype.Timestamp
+	UpdatedAt         pgtype.Timestamp
+}
+
 type Project struct {
 	ID          pgtype.UUID
 	CompanyID   pgtype.UUID
