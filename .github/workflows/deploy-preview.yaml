@@ -46,3 +46,4 @@ jobs:
             echo "Running deploy-preview.sh"
             chmod +x deploy-preview.sh
             ./deploy-preview.sh
+            clean_up
