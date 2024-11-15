@@ -14,7 +14,10 @@ func validateBody(c echo.Context, requestBodyType interface{}) error {
 		return echo.NewHTTPError(http.StatusBadRequest, "Invalid request body :(")
 	}
 	if err := c.Validate(requestBodyType); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
+		// this will let the global error handler handle
+		// the ValidationError and get error string for
+		// the each invalid field.
+		return err
 	}
 
 	return nil
