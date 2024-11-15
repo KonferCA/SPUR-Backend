@@ -1,7 +1,7 @@
 -- +goose Up
 -- +goose StatementBegin
 CREATE TABLE projects (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     company_id UUID NOT NULL REFERENCES companies(id) ON DELETE CASCADE,
     title VARCHAR(255) NOT NULL,
     description TEXT,
@@ -11,7 +11,7 @@ CREATE TABLE projects (
 );
 
 CREATE TABLE project_files (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     file_type VARCHAR(100) NOT NULL,
     file_url TEXT NOT NULL,
@@ -20,7 +20,7 @@ CREATE TABLE project_files (
 );
 
 CREATE TABLE project_comments (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     user_id UUID NOT NULL REFERENCES users(id),
     comment TEXT NOT NULL,
@@ -29,7 +29,7 @@ CREATE TABLE project_comments (
 );
 
 CREATE TABLE project_links (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     link_type VARCHAR(100) NOT NULL,
     url TEXT NOT NULL,
@@ -38,7 +38,7 @@ CREATE TABLE project_links (
 );
 
 CREATE TABLE project_tags (
-    id UUID PRIMARY KEY DEFAULT uuid_generate_v4(),
+    id UUID PRIMARY KEY DEFAULT uuid_generate_v4() NOT NULL,
     project_id UUID NOT NULL REFERENCES projects(id) ON DELETE CASCADE,
     tag_id UUID NOT NULL REFERENCES tags(id),
     created_at TIMESTAMP DEFAULT NOW(),
