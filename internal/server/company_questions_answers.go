@@ -193,12 +193,12 @@ func (s *Server) handleDeleteCompanyAnswer(c echo.Context) error {
 		return handleDBError(err, "verify", "company answer")
 	}
 
-	params := db.DeleteCompanyAnswerParams{
+	params := db.SoftDeleteCompanyAnswerParams{
 		CompanyID:  companyID,
 		QuestionID: questionID,
 	}
 
-	err = queries.DeleteCompanyAnswer(context.Background(), params)
+	err = queries.SoftDeleteCompanyAnswer(context.Background(), params)
 	if err != nil {
 		return handleDBError(err, "delete", "company answer")
 	}
