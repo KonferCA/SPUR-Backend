@@ -5,6 +5,7 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	"github.com/KonferCA/NoKap/internal/jwt"
 	"github.com/emicklei/pgtalk/convert"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
@@ -13,6 +14,7 @@ import (
 
 func (s *Server) setupAuthRoutes() {
 	auth := s.apiV1.Group("/auth")
+	auth.Use(s.authLimiter.RateLimit()) // special rate limit for auth routes
 	auth.POST("/signup", s.handleSignup)
 	auth.POST("/signin", s.handleSignin)
 }
@@ -50,13 +52,14 @@ func (s *Server) handleSignup(c echo.Context) error {
 	}
 
 	userID := convert.UUIDToString(user.ID)
-	token, err := generateJWT(userID, user.Role)
+	accessToken, refreshToken, err := jwt.Generate(userID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
 
 	return c.JSON(http.StatusCreated, AuthResponse{
-		Token: token,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
 			Email:         user.Email,
@@ -89,13 +92,14 @@ func (s *Server) handleSignin(c echo.Context) error {
 	}
 
 	userID := convert.UUIDToString(user.ID)
-	token, err := generateJWT(userID, user.Role)
+	accessToken, refreshToken, err := jwt.Generate(userID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
 
 	return c.JSON(http.StatusOK, AuthResponse{
-		Token: token,
+		AccessToken:  accessToken,
+		RefreshToken: refreshToken,
 		User: User{
 			ID:            userID,
 			Email:         user.Email,

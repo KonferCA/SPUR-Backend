@@ -2,13 +2,12 @@ package server
 
 import (
 	"bytes"
+	"context"
 	"encoding/json"
 	"net/http"
 	"net/http/httptest"
 	"os"
 	"testing"
-
-	"context"
 
 	"github.com/stretchr/testify/assert"
 )
@@ -24,7 +23,7 @@ func TestAuth(t *testing.T) {
 	os.Setenv("DB_SSLMODE", "disable")
 
 	// create server
-	s, err := New()
+	s, err := New(true)
 	if err != nil {
 		t.Fatalf("failed to create server: %v", err)
 	}
@@ -59,7 +58,8 @@ func TestAuth(t *testing.T) {
 		var response AuthResponse
 		err := json.NewDecoder(rec.Body).Decode(&response)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, response.Token)
+		assert.NotEmpty(t, response.AccessToken)
+		assert.NotEmpty(t, response.RefreshToken)
 		assert.Equal(t, payload.Email, response.User.Email)
 	})
 
@@ -100,7 +100,8 @@ func TestAuth(t *testing.T) {
 		var response AuthResponse
 		err := json.Unmarshal(rec.Body.Bytes(), &response)
 		assert.NoError(t, err)
-		assert.NotEmpty(t, response.Token)
+		assert.NotEmpty(t, response.AccessToken)
+		assert.NotEmpty(t, response.RefreshToken)
 		assert.Equal(t, payload.Email, response.User.Email)
 	})
 
