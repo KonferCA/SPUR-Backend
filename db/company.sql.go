@@ -29,7 +29,7 @@ INSERT INTO companies (
     CURRENT_TIMESTAMP,
     CURRENT_TIMESTAMP
 )
-RETURNING id, owner_user_id, name, description, is_verified, created_at, updated_at
+RETURNING id, owner_user_id, name, description, is_verified, created_at, updated_at, deleted_at
 `
 
 type CreateCompanyParams struct {
@@ -49,6 +49,7 @@ func (q *Queries) CreateCompany(ctx context.Context, arg CreateCompanyParams) (C
 		&i.IsVerified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -65,7 +66,7 @@ func (q *Queries) DeleteCompany(ctx context.Context, id pgtype.UUID) error {
 }
 
 const getCompanyByID = `-- name: GetCompanyByID :one
-SELECT id, owner_user_id, name, description, is_verified, created_at, updated_at
+SELECT id, owner_user_id, name, description, is_verified, created_at, updated_at, deleted_at
 FROM companies
 WHERE id = $1 LIMIT 1
 `
@@ -81,12 +82,13 @@ func (q *Queries) GetCompanyByID(ctx context.Context, id pgtype.UUID) (Company, 
 		&i.IsVerified,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const listCompanies = `-- name: ListCompanies :many
-SELECT id, owner_user_id, name, description, is_verified, created_at, updated_at
+SELECT id, owner_user_id, name, description, is_verified, created_at, updated_at, deleted_at
 FROM companies
 ORDER BY updated_at DESC
 `
@@ -108,6 +110,7 @@ func (q *Queries) ListCompanies(ctx context.Context) ([]Company, error) {
 			&i.IsVerified,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}

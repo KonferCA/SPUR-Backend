@@ -16,6 +16,7 @@ type Company struct {
 	IsVerified  bool
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
+	DeletedAt   pgtype.Timestamp
 }
 
 type CompanyDocument struct {
@@ -49,6 +50,7 @@ type CompanyQuestionAnswer struct {
 	AnswerText string
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
+	DeletedAt  pgtype.Timestamp
 }
 
 type Employee struct {
@@ -137,6 +139,7 @@ type Question struct {
 	QuestionText string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
+	DeletedAt    pgtype.Timestamp
 }
 
 type ResourceRequest struct {

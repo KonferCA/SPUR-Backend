@@ -19,7 +19,7 @@ INSERT INTO company_question_answers (
 ) VALUES (
     $1, $2, $3
 )
-RETURNING id, company_id, question_id, answer_text, created_at, updated_at
+RETURNING id, company_id, question_id, answer_text, created_at, updated_at, deleted_at
 `
 
 type CreateCompanyAnswerParams struct {
@@ -38,6 +38,7 @@ func (q *Queries) CreateCompanyAnswer(ctx context.Context, arg CreateCompanyAnsw
 		&i.AnswerText,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
@@ -48,7 +49,7 @@ INSERT INTO questions (
 ) VALUES (
     $1
 )
-RETURNING id, question_text, created_at, updated_at
+RETURNING id, question_text, created_at, updated_at, deleted_at
 `
 
 func (q *Queries) CreateQuestion(ctx context.Context, questionText string) (Question, error) {
@@ -59,32 +60,18 @@ func (q *Queries) CreateQuestion(ctx context.Context, questionText string) (Ques
 		&i.QuestionText,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
-const deleteCompanyAnswer = `-- name: DeleteCompanyAnswer :exec
-DELETE FROM company_question_answers
-WHERE company_id = $1 AND question_id = $2
-`
-
-type DeleteCompanyAnswerParams struct {
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
-}
-
-func (q *Queries) DeleteCompanyAnswer(ctx context.Context, arg DeleteCompanyAnswerParams) error {
-	_, err := q.db.Exec(ctx, deleteCompanyAnswer, arg.CompanyID, arg.QuestionID)
-	return err
-}
-
 const getCompanyAnswer = `-- name: GetCompanyAnswer :one
 SELECT 
-    cqa.id, cqa.company_id, cqa.question_id, cqa.answer_text, cqa.created_at, cqa.updated_at,
+    cqa.id, cqa.company_id, cqa.question_id, cqa.answer_text, cqa.created_at, cqa.updated_at, cqa.deleted_at,
     q.question_text
 FROM company_question_answers cqa
 JOIN questions q ON q.id = cqa.question_id
-WHERE cqa.company_id = $1 AND cqa.question_id = $2
+WHERE cqa.company_id = $1 AND cqa.question_id = $2 AND cqa.deleted_at IS NULL AND q.deleted_at IS NULL
 LIMIT 1
 `
 
@@ -100,6 +87,7 @@ type GetCompanyAnswerRow struct {
 	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
+	DeletedAt    pgtype.Timestamp
 	QuestionText string
 }
 
@@ -113,14 +101,16 @@ func (q *Queries) GetCompanyAnswer(ctx context.Context, arg GetCompanyAnswerPara
 		&i.AnswerText,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 		&i.QuestionText,
 	)
 	return i, err
 }
 
 const getQuestion = `-- name: GetQuestion :one
-SELECT id, question_text, created_at, updated_at FROM questions
-WHERE id = $1 LIMIT 1
+SELECT id, question_text, created_at, updated_at, deleted_at FROM questions
+WHERE id = $1 AND deleted_at IS NULL
+LIMIT 1
 `
 
 func (q *Queries) GetQuestion(ctx context.Context, id pgtype.UUID) (Question, error) {
@@ -131,17 +121,18 @@ func (q *Queries) GetQuestion(ctx context.Context, id pgtype.UUID) (Question, er
 		&i.QuestionText,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
 
 const listCompanyAnswers = `-- name: ListCompanyAnswers :many
 SELECT 
-    cqa.id, cqa.company_id, cqa.question_id, cqa.answer_text, cqa.created_at, cqa.updated_at,
+    cqa.id, cqa.company_id, cqa.question_id, cqa.answer_text, cqa.created_at, cqa.updated_at, cqa.deleted_at,
     q.question_text
 FROM company_question_answers cqa
 JOIN questions q ON q.id = cqa.question_id
-WHERE cqa.company_id = $1
+WHERE cqa.company_id = $1 AND cqa.deleted_at IS NULL AND q.deleted_at IS NULL
 ORDER BY cqa.created_at DESC
 `
 
@@ -152,6 +143,7 @@ type ListCompanyAnswersRow struct {
 	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
+	DeletedAt    pgtype.Timestamp
 	QuestionText string
 }
 
@@ -171,6 +163,7 @@ func (q *Queries) ListCompanyAnswers(ctx context.Context, companyID pgtype.UUID)
 			&i.AnswerText,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 			&i.QuestionText,
 		); err != nil {
 			return nil, err
@@ -184,7 +177,8 @@ func (q *Queries) ListCompanyAnswers(ctx context.Context, companyID pgtype.UUID)
 }
 
 const listQuestions = `-- name: ListQuestions :many
-SELECT id, question_text, created_at, updated_at FROM questions
+SELECT id, question_text, created_at, updated_at, deleted_at FROM questions
+WHERE deleted_at IS NULL
 ORDER BY created_at DESC
 `
 
@@ -202,6 +196,7 @@ func (q *Queries) ListQuestions(ctx context.Context) ([]Question, error) {
 			&i.QuestionText,
 			&i.CreatedAt,
 			&i.UpdatedAt,
+			&i.DeletedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -213,13 +208,40 @@ func (q *Queries) ListQuestions(ctx context.Context) ([]Question, error) {
 	return items, nil
 }
 
+const softDeleteCompanyAnswer = `-- name: SoftDeleteCompanyAnswer :exec
+UPDATE company_question_answers
+SET deleted_at = NOW()
+WHERE company_id = $1 AND question_id = $2
+`
+
+type SoftDeleteCompanyAnswerParams struct {
+	CompanyID  pgtype.UUID
+	QuestionID pgtype.UUID
+}
+
+func (q *Queries) SoftDeleteCompanyAnswer(ctx context.Context, arg SoftDeleteCompanyAnswerParams) error {
+	_, err := q.db.Exec(ctx, softDeleteCompanyAnswer, arg.CompanyID, arg.QuestionID)
+	return err
+}
+
+const softDeleteQuestion = `-- name: SoftDeleteQuestion :exec
+UPDATE questions
+SET deleted_at = NOW()
+WHERE id = $1
+`
+
+func (q *Queries) SoftDeleteQuestion(ctx context.Context, id pgtype.UUID) error {
+	_, err := q.db.Exec(ctx, softDeleteQuestion, id)
+	return err
+}
+
 const updateCompanyAnswer = `-- name: UpdateCompanyAnswer :one
 UPDATE company_question_answers
 SET 
     answer_text = $3,
     updated_at = NOW()
-WHERE company_id = $1 AND question_id = $2
-RETURNING id, company_id, question_id, answer_text, created_at, updated_at
+WHERE company_id = $1 AND question_id = $2 AND deleted_at IS NULL
+RETURNING id, company_id, question_id, answer_text, created_at, updated_at, deleted_at
 `
 
 type UpdateCompanyAnswerParams struct {
@@ -238,6 +260,7 @@ func (q *Queries) UpdateCompanyAnswer(ctx context.Context, arg UpdateCompanyAnsw
 		&i.AnswerText,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.DeletedAt,
 	)
 	return i, err
 }
