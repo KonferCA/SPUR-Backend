@@ -9,6 +9,8 @@ sql:
         out: "db"
         sql_package: "pgx/v5"
         emit_pointers_for_null_types: true
+        emit_enum_valid_method: true
+        emit_all_enum_values: true
         overrides:
           - db_type: "uuid"
             go_type: "string"

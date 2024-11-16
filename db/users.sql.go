@@ -18,7 +18,7 @@ INSERT INTO users (
     role
 ) VALUES (
     $1, $2, $3, $4, $5
-) RETURNING id, email, password_hash, first_name, last_name, role, wallet_address, created_at, updated_at
+) RETURNING id, email, password_hash, first_name, last_name, wallet_address, created_at, updated_at, role
 `
 
 type CreateUserParams struct {
@@ -26,7 +26,7 @@ type CreateUserParams struct {
 	PasswordHash string
 	FirstName    *string
 	LastName     *string
-	Role         string
+	Role         UserRole
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {
@@ -44,16 +44,16 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 		&i.PasswordHash,
 		&i.FirstName,
 		&i.LastName,
-		&i.Role,
 		&i.WalletAddress,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
 
 const getUserByEmail = `-- name: GetUserByEmail :one
-SELECT id, email, password_hash, first_name, last_name, role, wallet_address, created_at, updated_at FROM users
+SELECT id, email, password_hash, first_name, last_name, wallet_address, created_at, updated_at, role FROM users
 WHERE email = $1 LIMIT 1
 `
 
@@ -66,16 +66,16 @@ func (q *Queries) GetUserByEmail(ctx context.Context, email string) (User, error
 		&i.PasswordHash,
 		&i.FirstName,
 		&i.LastName,
-		&i.Role,
 		&i.WalletAddress,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
 
 const getUserByID = `-- name: GetUserByID :one
-SELECT id, email, password_hash, first_name, last_name, role, wallet_address, created_at, updated_at FROM users
+SELECT id, email, password_hash, first_name, last_name, wallet_address, created_at, updated_at, role FROM users
 WHERE id = $1 LIMIT 1
 `
 
@@ -88,10 +88,10 @@ func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
 		&i.PasswordHash,
 		&i.FirstName,
 		&i.LastName,
-		&i.Role,
 		&i.WalletAddress,
 		&i.CreatedAt,
 		&i.UpdatedAt,
+		&i.Role,
 	)
 	return i, err
 }
