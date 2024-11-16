@@ -73,7 +73,6 @@ func New(testing bool) (*Server, error) {
 	e.Use(apiLimiter.RateLimit()) // global rate limit
 
 	customValidator := middleware.NewRequestBodyValidator()
-	fmt.Printf("Initializing validator: %+v\n", customValidator)
 	e.Validator = customValidator
 
 	server := &Server{
@@ -107,12 +106,6 @@ func New(testing bool) (*Server, error) {
 
 func (s *Server) setupV1Routes() {
 	s.apiV1 = s.echoInstance.Group("/api/v1")
-
-	s.echoInstance.GET("/", func(c echo.Context) error {
-		return c.JSON(200, map[string]string{
-			"message": "Server do be running...",
-		})
-	})
 
 	for _, route := range s.echoInstance.Routes() {
 		s.echoInstance.Logger.Printf("Route: %s %s", route.Method, route.Path)
