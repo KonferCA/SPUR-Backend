@@ -43,7 +43,7 @@ RETURNING id, company_id, financial_year, revenue, expenses, profit, sales, amou
 `
 
 type CreateCompanyFinancialsParams struct {
-	CompanyID      pgtype.UUID
+	CompanyID      string
 	FinancialYear  int32
 	Revenue        pgtype.Numeric
 	Expenses       pgtype.Numeric
@@ -91,7 +91,7 @@ AND financial_year = $2
 `
 
 type DeleteCompanyFinancialsParams struct {
-	CompanyID     pgtype.UUID
+	CompanyID     string
 	FinancialYear int32
 }
 
@@ -109,7 +109,7 @@ LIMIT 1
 `
 
 type GetCompanyFinancialsByYearParams struct {
-	CompanyID     pgtype.UUID
+	CompanyID     string
 	FinancialYear int32
 }
 
@@ -141,7 +141,7 @@ ORDER BY financial_year DESC
 LIMIT 1
 `
 
-func (q *Queries) GetLatestCompanyFinancials(ctx context.Context, companyID pgtype.UUID) (CompanyFinancial, error) {
+func (q *Queries) GetLatestCompanyFinancials(ctx context.Context, companyID string) (CompanyFinancial, error) {
 	row := q.db.QueryRow(ctx, getLatestCompanyFinancials, companyID)
 	var i CompanyFinancial
 	err := row.Scan(
@@ -168,7 +168,7 @@ WHERE company_id = $1
 ORDER BY financial_year DESC
 `
 
-func (q *Queries) ListCompanyFinancials(ctx context.Context, companyID pgtype.UUID) ([]CompanyFinancial, error) {
+func (q *Queries) ListCompanyFinancials(ctx context.Context, companyID string) ([]CompanyFinancial, error) {
 	rows, err := q.db.Query(ctx, listCompanyFinancials, companyID)
 	if err != nil {
 		return nil, err
@@ -218,7 +218,7 @@ RETURNING id, company_id, financial_year, revenue, expenses, profit, sales, amou
 `
 
 type UpdateCompanyFinancialsParams struct {
-	CompanyID      pgtype.UUID
+	CompanyID      string
 	FinancialYear  int32
 	Revenue        pgtype.Numeric
 	Expenses       pgtype.Numeric

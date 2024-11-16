@@ -33,7 +33,7 @@ RETURNING id, owner_user_id, name, description, is_verified, created_at, updated
 `
 
 type CreateCompanyParams struct {
-	OwnerUserID pgtype.UUID
+	OwnerUserID string
 	Name        string
 	Description pgtype.Text
 }
@@ -60,7 +60,7 @@ WHERE id = $1
 `
 
 // TODO: Add + use auth to ensure only company owners can delete
-func (q *Queries) DeleteCompany(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteCompany(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteCompany, id)
 	return err
 }
@@ -71,7 +71,7 @@ FROM companies
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetCompanyByID(ctx context.Context, id pgtype.UUID) (Company, error) {
+func (q *Queries) GetCompanyByID(ctx context.Context, id string) (Company, error) {
 	row := q.db.QueryRow(ctx, getCompanyByID, id)
 	var i Company
 	err := row.Scan(

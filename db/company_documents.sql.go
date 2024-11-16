@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createCompanyDocument = `-- name: CreateCompanyDocument :one
@@ -23,7 +21,7 @@ RETURNING id, company_id, document_type, file_url, created_at, updated_at
 `
 
 type CreateCompanyDocumentParams struct {
-	CompanyID    pgtype.UUID
+	CompanyID    string
 	DocumentType string
 	FileUrl      string
 }
@@ -47,7 +45,7 @@ DELETE FROM company_documents
 WHERE id = $1
 `
 
-func (q *Queries) DeleteCompanyDocument(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteCompanyDocument(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteCompanyDocument, id)
 	return err
 }
@@ -57,7 +55,7 @@ SELECT id, company_id, document_type, file_url, created_at, updated_at FROM comp
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetCompanyDocumentByID(ctx context.Context, id pgtype.UUID) (CompanyDocument, error) {
+func (q *Queries) GetCompanyDocumentByID(ctx context.Context, id string) (CompanyDocument, error) {
 	row := q.db.QueryRow(ctx, getCompanyDocumentByID, id)
 	var i CompanyDocument
 	err := row.Scan(
@@ -77,7 +75,7 @@ WHERE company_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListCompanyDocuments(ctx context.Context, companyID pgtype.UUID) ([]CompanyDocument, error) {
+func (q *Queries) ListCompanyDocuments(ctx context.Context, companyID string) ([]CompanyDocument, error) {
 	rows, err := q.db.Query(ctx, listCompanyDocuments, companyID)
 	if err != nil {
 		return nil, err
@@ -111,7 +109,7 @@ ORDER BY created_at DESC
 `
 
 type ListDocumentsByTypeParams struct {
-	CompanyID    pgtype.UUID
+	CompanyID    string
 	DocumentType string
 }
 
@@ -153,7 +151,7 @@ RETURNING id, company_id, document_type, file_url, created_at, updated_at
 `
 
 type UpdateCompanyDocumentParams struct {
-	ID           pgtype.UUID
+	ID           string
 	DocumentType string
 	FileUrl      string
 }

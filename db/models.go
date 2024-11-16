@@ -9,8 +9,8 @@ import (
 )
 
 type Company struct {
-	ID          pgtype.UUID
-	OwnerUserID pgtype.UUID
+	ID          string
+	OwnerUserID string
 	Name        string
 	Description pgtype.Text
 	IsVerified  bool
@@ -20,8 +20,8 @@ type Company struct {
 }
 
 type CompanyDocument struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
+	ID           string
+	CompanyID    string
 	DocumentType string
 	FileUrl      string
 	CreatedAt    pgtype.Timestamp
@@ -29,8 +29,8 @@ type CompanyDocument struct {
 }
 
 type CompanyFinancial struct {
-	ID             pgtype.UUID
-	CompanyID      pgtype.UUID
+	ID             string
+	CompanyID      string
 	FinancialYear  int32
 	Revenue        pgtype.Numeric
 	Expenses       pgtype.Numeric
@@ -44,9 +44,9 @@ type CompanyFinancial struct {
 }
 
 type CompanyQuestionAnswer struct {
-	ID         pgtype.UUID
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	ID         string
+	CompanyID  string
+	QuestionID string
 	AnswerText string
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
@@ -54,8 +54,8 @@ type CompanyQuestionAnswer struct {
 }
 
 type Employee struct {
-	ID        pgtype.UUID
-	CompanyID pgtype.UUID
+	ID        string
+	CompanyID string
 	Name      string
 	Email     string
 	Role      string
@@ -65,8 +65,8 @@ type Employee struct {
 }
 
 type FundingTransaction struct {
-	ID                pgtype.UUID
-	ProjectID         pgtype.UUID
+	ID                string
+	ProjectID         string
 	Amount            pgtype.Numeric
 	Currency          string
 	TransactionHash   string
@@ -78,9 +78,9 @@ type FundingTransaction struct {
 }
 
 type Meeting struct {
-	ID                pgtype.UUID
-	ProjectID         pgtype.UUID
-	ScheduledByUserID pgtype.UUID
+	ID                string
+	ProjectID         string
+	ScheduledByUserID string
 	StartTime         pgtype.Timestamp
 	EndTime           pgtype.Timestamp
 	MeetingUrl        pgtype.Text
@@ -91,8 +91,8 @@ type Meeting struct {
 }
 
 type Project struct {
-	ID          pgtype.UUID
-	CompanyID   pgtype.UUID
+	ID          string
+	CompanyID   string
 	Title       string
 	Description pgtype.Text
 	Status      string
@@ -101,17 +101,17 @@ type Project struct {
 }
 
 type ProjectComment struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ID        string
+	ProjectID string
+	UserID    string
 	Comment   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type ProjectFile struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
+	ID        string
+	ProjectID string
 	FileType  string
 	FileUrl   string
 	CreatedAt pgtype.Timestamp
@@ -119,8 +119,8 @@ type ProjectFile struct {
 }
 
 type ProjectLink struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
+	ID        string
+	ProjectID string
 	LinkType  string
 	Url       string
 	CreatedAt pgtype.Timestamp
@@ -128,14 +128,14 @@ type ProjectLink struct {
 }
 
 type ProjectTag struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	TagID     pgtype.UUID
+	ID        string
+	ProjectID string
+	TagID     string
 	CreatedAt pgtype.Timestamp
 }
 
 type Question struct {
-	ID           pgtype.UUID
+	ID           string
 	QuestionText string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
@@ -143,8 +143,8 @@ type Question struct {
 }
 
 type ResourceRequest struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
+	ID           string
+	CompanyID    string
 	ResourceType string
 	Description  pgtype.Text
 	Status       string
@@ -153,14 +153,14 @@ type ResourceRequest struct {
 }
 
 type Tag struct {
-	ID        pgtype.UUID
+	ID        string
 	Name      string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type User struct {
-	ID            pgtype.UUID
+	ID            string
 	Email         string
 	PasswordHash  string
 	FirstName     pgtype.Text

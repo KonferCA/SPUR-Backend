@@ -22,8 +22,8 @@ RETURNING id, project_id, tag_id, created_at
 `
 
 type AddProjectTagParams struct {
-	ProjectID pgtype.UUID
-	TagID     pgtype.UUID
+	ProjectID string
+	TagID     string
 }
 
 func (q *Queries) AddProjectTag(ctx context.Context, arg AddProjectTagParams) (ProjectTag, error) {
@@ -51,7 +51,7 @@ RETURNING id, company_id, title, description, status, created_at, updated_at
 `
 
 type CreateProjectParams struct {
-	CompanyID   pgtype.UUID
+	CompanyID   string
 	Title       string
 	Description pgtype.Text
 	Status      string
@@ -89,8 +89,8 @@ RETURNING id, project_id, user_id, comment, created_at, updated_at
 `
 
 type CreateProjectCommentParams struct {
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ProjectID string
+	UserID    string
 	Comment   string
 }
 
@@ -120,7 +120,7 @@ RETURNING id, project_id, file_type, file_url, created_at, updated_at
 `
 
 type CreateProjectFileParams struct {
-	ProjectID pgtype.UUID
+	ProjectID string
 	FileType  string
 	FileUrl   string
 }
@@ -151,7 +151,7 @@ RETURNING id, project_id, link_type, url, created_at, updated_at
 `
 
 type CreateProjectLinkParams struct {
-	ProjectID pgtype.UUID
+	ProjectID string
 	LinkType  string
 	Url       string
 }
@@ -175,7 +175,7 @@ DELETE FROM project_tags
 WHERE project_id = $1
 `
 
-func (q *Queries) DeleteAllProjectTags(ctx context.Context, projectID pgtype.UUID) error {
+func (q *Queries) DeleteAllProjectTags(ctx context.Context, projectID string) error {
 	_, err := q.db.Exec(ctx, deleteAllProjectTags, projectID)
 	return err
 }
@@ -185,7 +185,7 @@ DELETE FROM projects
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProject(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProject(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteProject, id)
 	return err
 }
@@ -195,7 +195,7 @@ DELETE FROM project_comments
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProjectComment(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProjectComment(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteProjectComment, id)
 	return err
 }
@@ -205,7 +205,7 @@ DELETE FROM project_files
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProjectFile(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProjectFile(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteProjectFile, id)
 	return err
 }
@@ -215,7 +215,7 @@ DELETE FROM project_links
 WHERE id = $1
 `
 
-func (q *Queries) DeleteProjectLink(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteProjectLink(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteProjectLink, id)
 	return err
 }
@@ -226,8 +226,8 @@ WHERE project_id = $1 AND tag_id = $2
 `
 
 type DeleteProjectTagParams struct {
-	ProjectID pgtype.UUID
-	TagID     pgtype.UUID
+	ProjectID string
+	TagID     string
 }
 
 func (q *Queries) DeleteProjectTag(ctx context.Context, arg DeleteProjectTagParams) error {
@@ -240,7 +240,7 @@ SELECT id, company_id, title, description, status, created_at, updated_at FROM p
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetProject(ctx context.Context, id pgtype.UUID) (Project, error) {
+func (q *Queries) GetProject(ctx context.Context, id string) (Project, error) {
 	row := q.db.QueryRow(ctx, getProject, id)
 	var i Project
 	err := row.Scan(
@@ -268,9 +268,9 @@ ORDER BY pc.created_at DESC
 `
 
 type GetProjectCommentsRow struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ID        string
+	ProjectID string
+	UserID    string
 	Comment   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
@@ -279,7 +279,7 @@ type GetProjectCommentsRow struct {
 	Email     string
 }
 
-func (q *Queries) GetProjectComments(ctx context.Context, projectID pgtype.UUID) ([]GetProjectCommentsRow, error) {
+func (q *Queries) GetProjectComments(ctx context.Context, projectID string) ([]GetProjectCommentsRow, error) {
 	rows, err := q.db.Query(ctx, getProjectComments, projectID)
 	if err != nil {
 		return nil, err
@@ -315,7 +315,7 @@ WHERE project_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListProjectFiles(ctx context.Context, projectID pgtype.UUID) ([]ProjectFile, error) {
+func (q *Queries) ListProjectFiles(ctx context.Context, projectID string) ([]ProjectFile, error) {
 	rows, err := q.db.Query(ctx, listProjectFiles, projectID)
 	if err != nil {
 		return nil, err
@@ -348,7 +348,7 @@ WHERE project_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListProjectLinks(ctx context.Context, projectID pgtype.UUID) ([]ProjectLink, error) {
+func (q *Queries) ListProjectLinks(ctx context.Context, projectID string) ([]ProjectLink, error) {
 	rows, err := q.db.Query(ctx, listProjectLinks, projectID)
 	if err != nil {
 		return nil, err
@@ -386,14 +386,14 @@ ORDER BY t.name
 `
 
 type ListProjectTagsRow struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	TagID     pgtype.UUID
+	ID        string
+	ProjectID string
+	TagID     string
 	CreatedAt pgtype.Timestamp
 	TagName   string
 }
 
-func (q *Queries) ListProjectTags(ctx context.Context, projectID pgtype.UUID) ([]ListProjectTagsRow, error) {
+func (q *Queries) ListProjectTags(ctx context.Context, projectID string) ([]ListProjectTagsRow, error) {
 	rows, err := q.db.Query(ctx, listProjectTags, projectID)
 	if err != nil {
 		return nil, err
@@ -458,7 +458,7 @@ WHERE company_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListProjectsByCompany(ctx context.Context, companyID pgtype.UUID) ([]Project, error) {
+func (q *Queries) ListProjectsByCompany(ctx context.Context, companyID string) ([]Project, error) {
 	rows, err := q.db.Query(ctx, listProjectsByCompany, companyID)
 	if err != nil {
 		return nil, err
@@ -498,7 +498,7 @@ RETURNING id, company_id, title, description, status, created_at, updated_at
 `
 
 type UpdateProjectParams struct {
-	ID          pgtype.UUID
+	ID          string
 	Title       string
 	Description pgtype.Text
 	Status      string

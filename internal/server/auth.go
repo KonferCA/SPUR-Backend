@@ -6,7 +6,6 @@ import (
 
 	"github.com/KonferCA/NoKap/db"
 	"github.com/KonferCA/NoKap/internal/jwt"
-	"github.com/emicklei/pgtalk/convert"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -31,7 +30,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 
 	ctx := context.Background()
 	existingUser, err := s.queries.GetUserByEmail(ctx, req.Email)
-	if err == nil && existingUser.ID.Valid {
+	if err == nil && existingUser.ID != "" {
 		return echo.NewHTTPError(http.StatusConflict, "email already registered")
 	}
 
@@ -51,8 +50,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to create user")
 	}
 
-	userID := convert.UUIDToString(user.ID)
-	accessToken, refreshToken, err := jwt.Generate(userID, user.Role)
+	accessToken, refreshToken, err := jwt.Generate(user.ID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
@@ -61,7 +59,7 @@ func (s *Server) handleSignup(c echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		User: User{
-			ID:            userID,
+			ID:            user.ID,
 			Email:         user.Email,
 			FirstName:     user.FirstName.String,
 			LastName:      user.LastName.String,
@@ -91,8 +89,7 @@ func (s *Server) handleSignin(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusUnauthorized, "invalid credentials")
 	}
 
-	userID := convert.UUIDToString(user.ID)
-	accessToken, refreshToken, err := jwt.Generate(userID, user.Role)
+	accessToken, refreshToken, err := jwt.Generate(user.ID, user.Role)
 	if err != nil {
 		return echo.NewHTTPError(http.StatusInternalServerError, "failed to generate token")
 	}
@@ -101,7 +98,7 @@ func (s *Server) handleSignin(c echo.Context) error {
 		AccessToken:  accessToken,
 		RefreshToken: refreshToken,
 		User: User{
-			ID:            userID,
+			ID:            user.ID,
 			Email:         user.Email,
 			FirstName:     user.FirstName.String,
 			LastName:      user.LastName.String,

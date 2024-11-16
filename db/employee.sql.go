@@ -25,7 +25,7 @@ RETURNING id, company_id, name, email, role, bio, created_at, updated_at
 `
 
 type CreateEmployeeParams struct {
-	CompanyID pgtype.UUID
+	CompanyID string
 	Name      string
 	Email     string
 	Role      string
@@ -59,7 +59,7 @@ DELETE FROM employees
 WHERE id = $1
 `
 
-func (q *Queries) DeleteEmployee(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteEmployee(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteEmployee, id)
 	return err
 }
@@ -90,7 +90,7 @@ SELECT id, company_id, name, email, role, bio, created_at, updated_at FROM emplo
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetEmployeeByID(ctx context.Context, id pgtype.UUID) (Employee, error) {
+func (q *Queries) GetEmployeeByID(ctx context.Context, id string) (Employee, error) {
 	row := q.db.QueryRow(ctx, getEmployeeByID, id)
 	var i Employee
 	err := row.Scan(
@@ -146,7 +146,7 @@ WHERE company_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListEmployeesByCompany(ctx context.Context, companyID pgtype.UUID) ([]Employee, error) {
+func (q *Queries) ListEmployeesByCompany(ctx context.Context, companyID string) ([]Employee, error) {
 	rows, err := q.db.Query(ctx, listEmployeesByCompany, companyID)
 	if err != nil {
 		return nil, err
@@ -187,7 +187,7 @@ RETURNING id, company_id, name, email, role, bio, created_at, updated_at
 `
 
 type UpdateEmployeeParams struct {
-	ID   pgtype.UUID
+	ID   string
 	Name string
 	Role string
 	Bio  pgtype.Text
