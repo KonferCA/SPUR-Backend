@@ -5,6 +5,7 @@ import (
 )
 
 // TODO: Reorder types
+// What is the criteria of the ordering? - Juan
 
 type DatabaseInfo struct {
 	Connected       bool    `json:"connected"`
