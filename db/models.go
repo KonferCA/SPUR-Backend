@@ -5,6 +5,8 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
@@ -14,8 +16,8 @@ type Company struct {
 	Name        string
 	Description *string
 	IsVerified  bool
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	DeletedAt   pgtype.Timestamp
 }
 
@@ -81,8 +83,8 @@ type Meeting struct {
 	ID                string
 	ProjectID         string
 	ScheduledByUserID string
-	StartTime         pgtype.Timestamp
-	EndTime           pgtype.Timestamp
+	StartTime         time.Time
+	EndTime           time.Time
 	MeetingUrl        *string
 	Location          *string
 	Notes             *string
@@ -148,8 +150,8 @@ type ResourceRequest struct {
 	ResourceType string
 	Description  *string
 	Status       string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type Tag struct {

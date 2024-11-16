@@ -3,6 +3,7 @@ package server
 import (
 	"context"
 	"net/http"
+	"time"
 
 	"github.com/KonferCA/NoKap/db"
 	"github.com/labstack/echo/v4"
@@ -24,12 +25,12 @@ func (s *Server) handleCreateMeeting(c echo.Context) error {
 		return err
 	}
 
-	startTime, err := validateTimestamp(req.StartTime, "start time")
+	startTime, err := time.Parse(time.RFC3339, req.StartTime)
 	if err != nil {
 		return err
 	}
 
-	endTime, err := validateTimestamp(req.EndTime, "end time")
+	endTime, err := time.Parse(time.RFC3339, req.EndTime)
 	if err != nil {
 		return err
 	}
@@ -120,12 +121,12 @@ func (s *Server) handleUpdateMeeting(c echo.Context) error {
 		return err
 	}
 
-	startTime, err := validateTimestamp(req.StartTime, "start time")
+	startTime, err := time.Parse(time.RFC3339, req.StartTime)
 	if err != nil {
 		return err
 	}
 
-	endTime, err := validateTimestamp(req.EndTime, "end time")
+	endTime, err := time.Parse(time.RFC3339, req.EndTime)
 	if err != nil {
 		return err
 	}

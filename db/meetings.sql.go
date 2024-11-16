@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createMeeting = `-- name: CreateMeeting :one
@@ -29,8 +28,8 @@ RETURNING id, project_id, scheduled_by_user_id, start_time, end_time, meeting_ur
 type CreateMeetingParams struct {
 	ProjectID         string
 	ScheduledByUserID string
-	StartTime         pgtype.Timestamp
-	EndTime           pgtype.Timestamp
+	StartTime         time.Time
+	EndTime           time.Time
 	MeetingUrl        *string
 	Location          *string
 	Notes             *string
@@ -183,8 +182,8 @@ RETURNING id, project_id, scheduled_by_user_id, start_time, end_time, meeting_ur
 
 type UpdateMeetingParams struct {
 	ID         string
-	StartTime  pgtype.Timestamp
-	EndTime    pgtype.Timestamp
+	StartTime  time.Time
+	EndTime    time.Time
 	MeetingUrl *string
 	Location   *string
 	Notes      *string

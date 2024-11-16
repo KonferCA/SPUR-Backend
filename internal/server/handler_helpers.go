@@ -75,28 +75,21 @@ func validateNumeric(value string) (pgtype.Numeric, error) {
 	return num, nil
 }
 
-func validateTimestamp(timeStr string, fieldName string) (pgtype.Timestamp, error) {
-	var ts pgtype.Timestamp
+func validateTimestamp(timeStr string, fieldName string) (*time.Time, error) {
 	if timeStr == "" {
-		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s :(", fieldName))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s :(", fieldName))
 	}
 
 	parsedTime, err := time.Parse(time.RFC3339, timeStr)
 	if err != nil {
-		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s format :(", fieldName))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s format :(", fieldName))
 	}
 
-	ts.Time = parsedTime
-	ts.Valid = true
-	return ts, nil
+	return &parsedTime, nil
 }
 
-func validateTimeRange(startTime, endTime pgtype.Timestamp) error {
-	if !startTime.Valid || !endTime.Valid {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid time values :(")
-	}
-
-	if endTime.Time.Before(startTime.Time) {
+func validateTimeRange(startTime, endTime time.Time) error {
+	if endTime.Before(startTime) {
 		return echo.NewHTTPError(http.StatusBadRequest, "End time cannot be before start time :(")
 	}
 
