@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createEmployee = `-- name: CreateEmployee :one
@@ -29,7 +27,7 @@ type CreateEmployeeParams struct {
 	Name      string
 	Email     string
 	Role      string
-	Bio       pgtype.Text
+	Bio       *string
 }
 
 func (q *Queries) CreateEmployee(ctx context.Context, arg CreateEmployeeParams) (Employee, error) {
@@ -190,7 +188,7 @@ type UpdateEmployeeParams struct {
 	ID   string
 	Name string
 	Role string
-	Bio  pgtype.Text
+	Bio  *string
 }
 
 func (q *Queries) UpdateEmployee(ctx context.Context, arg UpdateEmployeeParams) (Employee, error) {

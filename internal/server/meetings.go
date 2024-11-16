@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -51,18 +50,9 @@ func (s *Server) handleCreateMeeting(c echo.Context) error {
 		ScheduledByUserID: userID,
 		StartTime:         startTime,
 		EndTime:           endTime,
-		MeetingUrl: pgtype.Text{
-			String: req.MeetingURL,
-			Valid:  req.MeetingURL != "",
-		},
-		Location: pgtype.Text{
-			String: req.Location,
-			Valid:  req.Location != "",
-		},
-		Notes: pgtype.Text{
-			String: req.Notes,
-			Valid:  req.Notes != "",
-		},
+		MeetingUrl:        req.MeetingURL,
+		Location:          req.Location,
+		Notes:             req.Notes,
 	}
 
 	meeting, err := queries.CreateMeeting(context.Background(), params)
@@ -152,21 +142,12 @@ func (s *Server) handleUpdateMeeting(c echo.Context) error {
 	}
 
 	params := db.UpdateMeetingParams{
-		ID:        meetingID,
-		StartTime: startTime,
-		EndTime:   endTime,
-		MeetingUrl: pgtype.Text{
-			String: req.MeetingURL,
-			Valid:  req.MeetingURL != "",
-		},
-		Location: pgtype.Text{
-			String: req.Location,
-			Valid:  req.Location != "",
-		},
-		Notes: pgtype.Text{
-			String: req.Notes,
-			Valid:  req.Notes != "",
-		},
+		ID:         meetingID,
+		StartTime:  startTime,
+		EndTime:    endTime,
+		MeetingUrl: req.MeetingURL,
+		Location:   req.Location,
+		Notes:      req.Notes,
 	}
 
 	meeting, err := queries.UpdateMeeting(context.Background(), params)

@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -26,8 +24,8 @@ INSERT INTO users (
 type CreateUserParams struct {
 	Email        string
 	PasswordHash string
-	FirstName    pgtype.Text
-	LastName     pgtype.Text
+	FirstName    *string
+	LastName     *string
 	Role         string
 }
 

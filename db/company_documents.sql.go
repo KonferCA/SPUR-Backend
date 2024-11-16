@@ -23,7 +23,7 @@ RETURNING id, company_id, document_type, file_url, created_at, updated_at
 type CreateCompanyDocumentParams struct {
 	CompanyID    string
 	DocumentType string
-	FileUrl      *string
+	FileUrl      string
 }
 
 func (q *Queries) CreateCompanyDocument(ctx context.Context, arg CreateCompanyDocumentParams) (CompanyDocument, error) {
@@ -153,7 +153,7 @@ RETURNING id, company_id, document_type, file_url, created_at, updated_at
 type UpdateCompanyDocumentParams struct {
 	ID           string
 	DocumentType string
-	FileUrl      *string
+	FileUrl      string
 }
 
 func (q *Queries) UpdateCompanyDocument(ctx context.Context, arg UpdateCompanyDocumentParams) (CompanyDocument, error) {

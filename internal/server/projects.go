@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,13 +31,10 @@ func (s *Server) handleCreateProject(c echo.Context) error {
 		companyID, req.Title, req.Status)
 
 	params := db.CreateProjectParams{
-		CompanyID: companyID,
-		Title:     req.Title,
-		Description: pgtype.Text{
-			String: req.Description,
-			Valid:  req.Description != "",
-		},
-		Status: req.Status,
+		CompanyID:   companyID,
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      req.Status,
 	}
 
 	project, err := queries.CreateProject(context.Background(), params)
@@ -130,7 +126,7 @@ func (s *Server) handleCreateProjectFile(c echo.Context) error {
 	params := db.CreateProjectFileParams{
 		ProjectID: projectID,
 		FileType:  req.FileType,
-		FileUrl:   &req.FileURL,
+		FileUrl:   req.FileURL,
 	}
 
 	file, err := queries.CreateProjectFile(context.Background(), params)
@@ -196,7 +192,7 @@ func (s *Server) handleCreateProjectComment(c echo.Context) error {
 	params := db.CreateProjectCommentParams{
 		ProjectID: projectID,
 		UserID:    userID,
-		Comment:   &req.Comment,
+		Comment:   req.Comment,
 	}
 
 	comment, err := queries.CreateProjectComment(context.Background(), params)
@@ -257,7 +253,7 @@ func (s *Server) handleCreateProjectLink(c echo.Context) error {
 	params := db.CreateProjectLinkParams{
 		ProjectID: projectID,
 		LinkType:  req.LinkType,
-		Url:       &req.URL,
+		Url:       req.URL,
 	}
 
 	link, err := queries.CreateProjectLink(context.Background(), params)

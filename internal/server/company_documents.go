@@ -29,7 +29,7 @@ func (s *Server) handleCreateCompanyDocument(c echo.Context) error {
 	params := db.CreateCompanyDocumentParams{
 		CompanyID:    companyID,
 		DocumentType: req.DocumentType,
-		FileUrl:      &req.FileURL,
+		FileUrl:      req.FileURL,
 	}
 
 	document, err := queries.CreateCompanyDocument(context.Background(), params)
@@ -106,7 +106,7 @@ func (s *Server) handleUpdateCompanyDocument(c echo.Context) error {
 	params := db.UpdateCompanyDocumentParams{
 		ID:           documentID,
 		DocumentType: req.DocumentType,
-		FileUrl:      &req.FileURL,
+		FileUrl:      req.FileURL,
 	}
 
 	document, err := queries.UpdateCompanyDocument(context.Background(), params)

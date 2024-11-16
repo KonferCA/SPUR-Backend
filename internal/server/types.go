@@ -28,16 +28,16 @@ type HealthReport struct {
 }
 
 type CreateCompanyRequest struct {
-	OwnerUserID string `json:"owner_user_id" validate:"required,uuid"`
-	Name        string `json:"name" validate:"required"`
-	Description string `json:"description"`
+	OwnerUserID string  `json:"owner_user_id" validate:"required,uuid"`
+	Name        string  `json:"name" validate:"required"`
+	Description *string `json:"description"`
 }
 
 type CreateResourceRequestRequest struct {
-	CompanyID    string `json:"company_id" validate:"required,uuid"`
-	ResourceType string `json:"resource_type" validate:"required"`
-	Description  string `json:"description"`
-	Status       string `json:"status" validate:"required"`
+	CompanyID    string  `json:"company_id" validate:"required,uuid"`
+	ResourceType string  `json:"resource_type" validate:"required"`
+	Description  *string `json:"description"`
+	Status       string  `json:"status" validate:"required"`
 }
 
 type SignupRequest struct {
@@ -80,17 +80,17 @@ type CreateCompanyFinancialsRequest struct {
 }
 
 type CreateEmployeeRequest struct {
-	CompanyID string `json:"company_id" validate:"required,uuid"`
-	Name      string `json:"name" validate:"required"`
-	Email     string `json:"email" validate:"required,email"`
-	Role      string `json:"role" validate:"required"`
-	Bio       string `json:"bio"`
+	CompanyID string  `json:"company_id" validate:"required,uuid"`
+	Name      string  `json:"name" validate:"required"`
+	Email     string  `json:"email" validate:"required,email"`
+	Role      string  `json:"role" validate:"required"`
+	Bio       *string `json:"bio"`
 }
 
 type UpdateEmployeeRequest struct {
-	Name string `json:"name" validate:"required"`
-	Role string `json:"role" validate:"required"`
-	Bio  string `json:"bio"`
+	Name string  `json:"name" validate:"required"`
+	Role string  `json:"role" validate:"required"`
+	Bio  *string `json:"bio"`
 }
 
 type CreateCompanyDocumentRequest struct {
@@ -118,10 +118,10 @@ type UpdateCompanyAnswerRequest struct {
 }
 
 type CreateProjectRequest struct {
-	CompanyID   string `json:"company_id" validate:"required"`
-	Title       string `json:"title" validate:"required"`
-	Description string `json:"description"`
-	Status      string `json:"status" validate:"required"`
+	CompanyID   string  `json:"company_id" validate:"required"`
+	Title       string  `json:"title" validate:"required"`
+	Description *string `json:"description"`
+	Status      string  `json:"status" validate:"required"`
 }
 
 type UpdateProjectRequest struct {
@@ -168,19 +168,19 @@ type UpdateFundingTransactionStatusRequest struct {
 }
 
 type CreateMeetingRequest struct {
-	ProjectID         string `json:"project_id" validate:"required,uuid"`
-	ScheduledByUserID string `json:"scheduled_by_user_id" validate:"required,uuid"`
-	StartTime         string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
-	EndTime           string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
-	MeetingURL        string `json:"meeting_url" validate:"omitempty,url"`
-	Location          string `json:"location"`
-	Notes             string `json:"notes"`
+	ProjectID         string  `json:"project_id" validate:"required,uuid"`
+	ScheduledByUserID string  `json:"scheduled_by_user_id" validate:"required,uuid"`
+	StartTime         string  `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime           string  `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL        *string `json:"meeting_url" validate:"omitempty,url"`
+	Location          *string `json:"location"`
+	Notes             *string `json:"notes"`
 }
 
 type UpdateMeetingRequest struct {
-	StartTime  string `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
-	EndTime    string `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
-	MeetingURL string `json:"meeting_url" validate:"omitempty,url"`
-	Location   string `json:"location"`
-	Notes      string `json:"notes"`
+	StartTime  string  `json:"start_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	EndTime    string  `json:"end_time" validate:"required,datetime=2006-01-02T15:04:05.000Z"`
+	MeetingURL *string `json:"meeting_url" validate:"omitempty,url"`
+	Location   *string `json:"location"`
+	Notes      *string `json:"notes"`
 }

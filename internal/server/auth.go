@@ -42,8 +42,8 @@ func (s *Server) handleSignup(c echo.Context) error {
 	user, err := s.queries.CreateUser(ctx, db.CreateUserParams{
 		Email:        req.Email,
 		PasswordHash: string(hashedPassword),
-		FirstName:    pgtype.Text{String: req.FirstName, Valid: true},
-		LastName:     pgtype.Text{String: req.LastName, Valid: true},
+		FirstName:    &req.FirstName,
+		LastName:     &req.LastName,
 		Role:         req.Role,
 	})
 	if err != nil {
@@ -61,10 +61,10 @@ func (s *Server) handleSignup(c echo.Context) error {
 		User: User{
 			ID:            user.ID,
 			Email:         user.Email,
-			FirstName:     user.FirstName.String,
-			LastName:      user.LastName.String,
+			FirstName:     *user.FirstName,
+			LastName:      *user.LastName,
 			Role:          user.Role,
-			WalletAddress: getStringPtr(user.WalletAddress),
+			WalletAddress: user.WalletAddress,
 		},
 	})
 }
@@ -100,10 +100,10 @@ func (s *Server) handleSignin(c echo.Context) error {
 		User: User{
 			ID:            user.ID,
 			Email:         user.Email,
-			FirstName:     user.FirstName.String,
-			LastName:      user.LastName.String,
+			FirstName:     *user.FirstName,
+			LastName:      *user.LastName,
 			Role:          user.Role,
-			WalletAddress: getStringPtr(user.WalletAddress),
+			WalletAddress: user.WalletAddress,
 		},
 	})
 }

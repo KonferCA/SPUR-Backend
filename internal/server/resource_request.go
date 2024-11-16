@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -29,7 +28,7 @@ func (s *Server) handleCreateResourceRequest(c echo.Context) error {
 	params := db.CreateResourceRequestParams{
 		CompanyID:    companyID,
 		ResourceType: req.ResourceType,
-		Description:  pgtype.Text{String: req.Description, Valid: req.Description != ""},
+		Description:  req.Description,
 		Status:       req.Status,
 	}
 

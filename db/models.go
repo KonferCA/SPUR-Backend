@@ -12,7 +12,7 @@ type Company struct {
 	ID          string
 	OwnerUserID string
 	Name        string
-	Description pgtype.Text
+	Description *string
 	IsVerified  bool
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
@@ -23,7 +23,7 @@ type CompanyDocument struct {
 	ID           string
 	CompanyID    string
 	DocumentType string
-	FileUrl      *string
+	FileUrl      string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 }
@@ -47,7 +47,7 @@ type CompanyQuestionAnswer struct {
 	ID         string
 	CompanyID  string
 	QuestionID string
-	AnswerText *string
+	AnswerText string
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
 	DeletedAt  pgtype.Timestamp
@@ -59,7 +59,7 @@ type Employee struct {
 	Name      string
 	Email     string
 	Role      string
-	Bio       pgtype.Text
+	Bio       *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -83,9 +83,9 @@ type Meeting struct {
 	ScheduledByUserID string
 	StartTime         pgtype.Timestamp
 	EndTime           pgtype.Timestamp
-	MeetingUrl        pgtype.Text
-	Location          pgtype.Text
-	Notes             pgtype.Text
+	MeetingUrl        *string
+	Location          *string
+	Notes             *string
 	CreatedAt         pgtype.Timestamp
 	UpdatedAt         pgtype.Timestamp
 }
@@ -94,7 +94,7 @@ type Project struct {
 	ID          string
 	CompanyID   string
 	Title       string
-	Description pgtype.Text
+	Description *string
 	Status      string
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
@@ -104,7 +104,7 @@ type ProjectComment struct {
 	ID        string
 	ProjectID string
 	UserID    string
-	Comment   *string
+	Comment   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -113,7 +113,7 @@ type ProjectFile struct {
 	ID        string
 	ProjectID string
 	FileType  string
-	FileUrl   *string
+	FileUrl   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -122,7 +122,7 @@ type ProjectLink struct {
 	ID        string
 	ProjectID string
 	LinkType  string
-	Url       *string
+	Url       string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -136,7 +136,7 @@ type ProjectTag struct {
 
 type Question struct {
 	ID           string
-	QuestionText *string
+	QuestionText string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp
@@ -146,7 +146,7 @@ type ResourceRequest struct {
 	ID           string
 	CompanyID    string
 	ResourceType string
-	Description  pgtype.Text
+	Description  *string
 	Status       string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
@@ -163,10 +163,10 @@ type User struct {
 	ID            string
 	Email         string
 	PasswordHash  string
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
+	FirstName     *string
+	LastName      *string
 	Role          string
-	WalletAddress pgtype.Text
+	WalletAddress *string
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 }

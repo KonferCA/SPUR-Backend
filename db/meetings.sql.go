@@ -31,9 +31,9 @@ type CreateMeetingParams struct {
 	ScheduledByUserID string
 	StartTime         pgtype.Timestamp
 	EndTime           pgtype.Timestamp
-	MeetingUrl        pgtype.Text
-	Location          pgtype.Text
-	Notes             pgtype.Text
+	MeetingUrl        *string
+	Location          *string
+	Notes             *string
 }
 
 func (q *Queries) CreateMeeting(ctx context.Context, arg CreateMeetingParams) (Meeting, error) {
@@ -185,9 +185,9 @@ type UpdateMeetingParams struct {
 	ID         string
 	StartTime  pgtype.Timestamp
 	EndTime    pgtype.Timestamp
-	MeetingUrl pgtype.Text
-	Location   pgtype.Text
-	Notes      pgtype.Text
+	MeetingUrl *string
+	Location   *string
+	Notes      *string
 }
 
 func (q *Queries) UpdateMeeting(ctx context.Context, arg UpdateMeetingParams) (Meeting, error) {

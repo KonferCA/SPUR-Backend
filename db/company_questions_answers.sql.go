@@ -25,7 +25,7 @@ RETURNING id, company_id, question_id, answer_text, created_at, updated_at, dele
 type CreateCompanyAnswerParams struct {
 	CompanyID  string
 	QuestionID string
-	AnswerText *string
+	AnswerText string
 }
 
 func (q *Queries) CreateCompanyAnswer(ctx context.Context, arg CreateCompanyAnswerParams) (CompanyQuestionAnswer, error) {
@@ -52,7 +52,7 @@ INSERT INTO questions (
 RETURNING id, question_text, created_at, updated_at, deleted_at
 `
 
-func (q *Queries) CreateQuestion(ctx context.Context, questionText *string) (Question, error) {
+func (q *Queries) CreateQuestion(ctx context.Context, questionText string) (Question, error) {
 	row := q.db.QueryRow(ctx, createQuestion, questionText)
 	var i Question
 	err := row.Scan(
@@ -84,11 +84,11 @@ type GetCompanyAnswerRow struct {
 	ID           string
 	CompanyID    string
 	QuestionID   string
-	AnswerText   *string
+	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp
-	QuestionText *string
+	QuestionText string
 }
 
 func (q *Queries) GetCompanyAnswer(ctx context.Context, arg GetCompanyAnswerParams) (GetCompanyAnswerRow, error) {
@@ -140,11 +140,11 @@ type ListCompanyAnswersRow struct {
 	ID           string
 	CompanyID    string
 	QuestionID   string
-	AnswerText   *string
+	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp
-	QuestionText *string
+	QuestionText string
 }
 
 func (q *Queries) ListCompanyAnswers(ctx context.Context, companyID string) ([]ListCompanyAnswersRow, error) {
@@ -247,7 +247,7 @@ RETURNING id, company_id, question_id, answer_text, created_at, updated_at, dele
 type UpdateCompanyAnswerParams struct {
 	CompanyID  string
 	QuestionID string
-	AnswerText *string
+	AnswerText string
 }
 
 func (q *Queries) UpdateCompanyAnswer(ctx context.Context, arg UpdateCompanyAnswerParams) (CompanyQuestionAnswer, error) {

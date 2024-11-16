@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createResourceRequest = `-- name: CreateResourceRequest :one
@@ -35,7 +33,7 @@ RETURNING id, company_id, resource_type, description, status, created_at, update
 type CreateResourceRequestParams struct {
 	CompanyID    string
 	ResourceType string
-	Description  pgtype.Text
+	Description  *string
 	Status       string
 }
 

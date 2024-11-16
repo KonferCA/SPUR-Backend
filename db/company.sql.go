@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createCompany = `-- name: CreateCompany :one
@@ -35,7 +33,7 @@ RETURNING id, owner_user_id, name, description, is_verified, created_at, updated
 type CreateCompanyParams struct {
 	OwnerUserID string
 	Name        string
-	Description pgtype.Text
+	Description *string
 }
 
 func (q *Queries) CreateCompany(ctx context.Context, arg CreateCompanyParams) (Company, error) {
