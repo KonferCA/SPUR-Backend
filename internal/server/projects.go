@@ -130,7 +130,7 @@ func (s *Server) handleCreateProjectFile(c echo.Context) error {
 	params := db.CreateProjectFileParams{
 		ProjectID: projectID,
 		FileType:  req.FileType,
-		FileUrl:   req.FileURL,
+		FileUrl:   &req.FileURL,
 	}
 
 	file, err := queries.CreateProjectFile(context.Background(), params)
@@ -196,7 +196,7 @@ func (s *Server) handleCreateProjectComment(c echo.Context) error {
 	params := db.CreateProjectCommentParams{
 		ProjectID: projectID,
 		UserID:    userID,
-		Comment:   req.Comment,
+		Comment:   &req.Comment,
 	}
 
 	comment, err := queries.CreateProjectComment(context.Background(), params)
@@ -257,7 +257,7 @@ func (s *Server) handleCreateProjectLink(c echo.Context) error {
 	params := db.CreateProjectLinkParams{
 		ProjectID: projectID,
 		LinkType:  req.LinkType,
-		Url:       req.URL,
+		Url:       &req.URL,
 	}
 
 	link, err := queries.CreateProjectLink(context.Background(), params)

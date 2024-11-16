@@ -91,7 +91,7 @@ RETURNING id, project_id, user_id, comment, created_at, updated_at
 type CreateProjectCommentParams struct {
 	ProjectID string
 	UserID    string
-	Comment   string
+	Comment   *string
 }
 
 func (q *Queries) CreateProjectComment(ctx context.Context, arg CreateProjectCommentParams) (ProjectComment, error) {
@@ -122,7 +122,7 @@ RETURNING id, project_id, file_type, file_url, created_at, updated_at
 type CreateProjectFileParams struct {
 	ProjectID string
 	FileType  string
-	FileUrl   string
+	FileUrl   *string
 }
 
 func (q *Queries) CreateProjectFile(ctx context.Context, arg CreateProjectFileParams) (ProjectFile, error) {
@@ -153,7 +153,7 @@ RETURNING id, project_id, link_type, url, created_at, updated_at
 type CreateProjectLinkParams struct {
 	ProjectID string
 	LinkType  string
-	Url       string
+	Url       *string
 }
 
 func (q *Queries) CreateProjectLink(ctx context.Context, arg CreateProjectLinkParams) (ProjectLink, error) {
@@ -271,7 +271,7 @@ type GetProjectCommentsRow struct {
 	ID        string
 	ProjectID string
 	UserID    string
-	Comment   string
+	Comment   *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 	FirstName pgtype.Text

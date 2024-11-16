@@ -11,3 +11,8 @@ sql:
         overrides:
           - db_type: "uuid"
             go_type: "string"
+          - db_type: "text"
+            go_type:
+              type: "string"
+              # allow to emit *string for nullable text columns
+              pointer: true

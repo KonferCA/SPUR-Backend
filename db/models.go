@@ -23,7 +23,7 @@ type CompanyDocument struct {
 	ID           string
 	CompanyID    string
 	DocumentType string
-	FileUrl      string
+	FileUrl      *string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 }
@@ -47,7 +47,7 @@ type CompanyQuestionAnswer struct {
 	ID         string
 	CompanyID  string
 	QuestionID string
-	AnswerText string
+	AnswerText *string
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
 	DeletedAt  pgtype.Timestamp
@@ -104,7 +104,7 @@ type ProjectComment struct {
 	ID        string
 	ProjectID string
 	UserID    string
-	Comment   string
+	Comment   *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -113,7 +113,7 @@ type ProjectFile struct {
 	ID        string
 	ProjectID string
 	FileType  string
-	FileUrl   string
+	FileUrl   *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -122,7 +122,7 @@ type ProjectLink struct {
 	ID        string
 	ProjectID string
 	LinkType  string
-	Url       string
+	Url       *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
@@ -136,7 +136,7 @@ type ProjectTag struct {
 
 type Question struct {
 	ID           string
-	QuestionText string
+	QuestionText *string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
 	DeletedAt    pgtype.Timestamp

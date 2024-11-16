@@ -15,7 +15,7 @@ func (s *Server) handleCreateQuestion(c echo.Context) error {
 	}
 
 	queries := db.New(s.DBPool)
-	question, err := queries.CreateQuestion(context.Background(), req.QuestionText)
+	question, err := queries.CreateQuestion(context.Background(), &req.QuestionText)
 	if err != nil {
 		return handleDBError(err, "create", "question")
 	}
@@ -79,7 +79,7 @@ func (s *Server) handleCreateCompanyAnswer(c echo.Context) error {
 	params := db.CreateCompanyAnswerParams{
 		CompanyID:  companyID,
 		QuestionID: questionID,
-		AnswerText: req.AnswerText,
+		AnswerText: &req.AnswerText,
 	}
 
 	answer, err := queries.CreateCompanyAnswer(context.Background(), params)
@@ -161,7 +161,7 @@ func (s *Server) handleUpdateCompanyAnswer(c echo.Context) error {
 	params := db.UpdateCompanyAnswerParams{
 		CompanyID:  companyID,
 		QuestionID: questionID,
-		AnswerText: req.AnswerText,
+		AnswerText: &req.AnswerText,
 	}
 
 	answer, err := queries.UpdateCompanyAnswer(context.Background(), params)
