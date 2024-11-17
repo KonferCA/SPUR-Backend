@@ -2,6 +2,8 @@ package server
 
 import (
 	"mime"
+	"net/http"
+	"net/url"
 	"path/filepath"
 	"strings"
 
@@ -29,7 +31,27 @@ func (s *Server) setupStaticRoutes() {
 
 	// serve assets with correct mime types
 	s.echoInstance.GET("/assets/*", func(c echo.Context) error {
-		path := filepath.Join(staticDir, "assets", c.Param("*"))
+		// url decode and clean the path
+		requestedPath, err := url.QueryUnescape(c.Param("*"))
+		if err != nil {
+			return echo.NewHTTPError(http.StatusForbidden, "invalid path")
+		}
+
+		requestedPath = filepath.Clean(requestedPath)
+		if strings.Contains(requestedPath, "..") {
+			return echo.NewHTTPError(http.StatusForbidden, "invalid path")
+		}
+
+		// create a safe path within static directory
+		path := filepath.Join(staticDir, "assets", requestedPath)
+
+		// verify the final path is still within the static directory
+		absStaticDir, _ := filepath.Abs(staticDir)
+		absPath, _ := filepath.Abs(path)
+		if !strings.HasPrefix(absPath, absStaticDir) {
+			return echo.NewHTTPError(http.StatusForbidden, "invalid path")
+		}
+
 		return c.File(path)
 	})
 
