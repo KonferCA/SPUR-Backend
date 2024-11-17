@@ -65,7 +65,6 @@ func ValidateRequestBody(structType reflect.Type) echo.MiddlewareFunc {
 // the generated valid method from SQLc.
 func validateUserRole(fl validator.FieldLevel) bool {
 	field := fl.Field()
-	log.Info().Any("field", field).Msg("debug")
 
 	// handle string type
 	if field.Kind() == reflect.String {
