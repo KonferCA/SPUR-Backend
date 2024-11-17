@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"reflect"
 
+	"github.com/KonferCA/NoKap/db"
 	"github.com/go-playground/validator/v10"
 	"github.com/labstack/echo/v4"
 	"github.com/rs/zerolog/log"
@@ -29,7 +30,9 @@ func (rv *RequestBodyValidator) Validate(i interface{}) error {
 // Creates a new request validator that can be set to an Echo instance
 // and used for validating request bodies with c.Validate()
 func NewRequestBodyValidator() *RequestBodyValidator {
-	return &RequestBodyValidator{validator: validator.New()}
+	v := validator.New()
+	v.RegisterValidation("valid_user_role", validateUserRole)
+	return &RequestBodyValidator{validator: v}
 }
 
 // Middleware that validates the incoming request body with the given structType.
@@ -56,4 +59,33 @@ func ValidateRequestBody(structType reflect.Type) echo.MiddlewareFunc {
 			return next(c)
 		}
 	}
+}
+
+// validateUserRole validates the "valid_user_role" tag using the
+// the generated valid method from SQLc.
+func validateUserRole(fl validator.FieldLevel) bool {
+	field := fl.Field()
+	log.Info().Any("field", field).Msg("debug")
+
+	// handle string type
+	if field.Kind() == reflect.String {
+		str := field.String()
+		ur := db.UserRole(str)
+		return ur.Valid()
+	}
+
+	// handle db.UserRole type
+	if field.Type() == reflect.TypeOf(db.UserRole("")) {
+		ur := field.Interface().(db.UserRole)
+		return ur.Valid()
+
+	}
+
+	// handle pointer to db.UserRole
+	if field.Type() == reflect.TypeOf((*db.UserRole)(nil)) && !field.IsNil() {
+		ur := field.Interface().(*db.UserRole)
+		return ur.Valid()
+	}
+
+	return false
 }
