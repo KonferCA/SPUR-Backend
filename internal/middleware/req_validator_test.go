@@ -19,7 +19,16 @@ func TestRequestBodyValidator(t *testing.T) {
 
 	e := echo.New()
 	e.Validator = NewRequestBodyValidator()
-	e.POST("/", handler, ValidateRequestBody(reflect.TypeOf(testStruct{})))
+	e.POST("/", func(c echo.Context) error {
+		// check that the request body is the correct interface
+		i, ok := c.Get(REQUEST_BODY_KEY).(*testStruct)
+		if !ok {
+			return echo.NewHTTPError(http.StatusInternalServerError)
+		}
+
+		// echo back
+		return c.JSON(http.StatusOK, i)
+	}, ValidateRequestBody(reflect.TypeOf(testStruct{})))
 
 	tests := []struct {
 		name         string
@@ -92,12 +101,8 @@ func TestRequestBodyValidator(t *testing.T) {
 			rec := httptest.NewRecorder()
 			e.ServeHTTP(rec, req)
 
+			t.Log(rec.Body.String())
 			assert.Equal(t, tc.expectedCode, rec.Code)
 		})
 	}
-}
-
-// test handler
-func handler(c echo.Context) error {
-	return c.String(http.StatusOK, "pass")
 }

@@ -10,13 +10,14 @@ import (
 	"github.com/rs/zerolog/log"
 )
 
+const REQUEST_BODY_KEY = "MIDDLEWARE_REQUEST_BODY"
+
 // Struct solely exists to comply with Echo's interface to add a custom validator...
 type RequestBodyValidator struct {
 	validator *validator.Validate
 }
 
 func (rv *RequestBodyValidator) Validate(i interface{}) error {
-	log.Info().Msgf("Validating struct: %+v\n", i)
 	if err := rv.validator.Struct(i); err != nil {
 		log.Error().Err(err).Msg("Validation error")
 		return err
@@ -47,6 +48,10 @@ func ValidateRequestBody(structType reflect.Type) echo.MiddlewareFunc {
 				// the each invalid field.
 				return err
 			}
+
+			// allow the remaining handlers in the chain gain access to
+			// the request body.
+			c.Set(REQUEST_BODY_KEY, reqStruct.Interface())
 
 			return next(c)
 		}
