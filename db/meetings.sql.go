@@ -7,8 +7,7 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
+	"time"
 )
 
 const createMeeting = `-- name: CreateMeeting :one
@@ -27,13 +26,13 @@ RETURNING id, project_id, scheduled_by_user_id, start_time, end_time, meeting_ur
 `
 
 type CreateMeetingParams struct {
-	ProjectID         pgtype.UUID
-	ScheduledByUserID pgtype.UUID
-	StartTime         pgtype.Timestamp
-	EndTime           pgtype.Timestamp
-	MeetingUrl        pgtype.Text
-	Location          pgtype.Text
-	Notes             pgtype.Text
+	ProjectID         string
+	ScheduledByUserID string
+	StartTime         time.Time
+	EndTime           time.Time
+	MeetingUrl        *string
+	Location          *string
+	Notes             *string
 }
 
 func (q *Queries) CreateMeeting(ctx context.Context, arg CreateMeetingParams) (Meeting, error) {
@@ -67,7 +66,7 @@ DELETE FROM meetings
 WHERE id = $1
 `
 
-func (q *Queries) DeleteMeeting(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteMeeting(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteMeeting, id)
 	return err
 }
@@ -77,7 +76,7 @@ SELECT id, project_id, scheduled_by_user_id, start_time, end_time, meeting_url, 
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetMeeting(ctx context.Context, id pgtype.UUID) (Meeting, error) {
+func (q *Queries) GetMeeting(ctx context.Context, id string) (Meeting, error) {
 	row := q.db.QueryRow(ctx, getMeeting, id)
 	var i Meeting
 	err := row.Scan(
@@ -137,7 +136,7 @@ WHERE project_id = $1
 ORDER BY start_time DESC
 `
 
-func (q *Queries) ListProjectMeetings(ctx context.Context, projectID pgtype.UUID) ([]Meeting, error) {
+func (q *Queries) ListProjectMeetings(ctx context.Context, projectID string) ([]Meeting, error) {
 	rows, err := q.db.Query(ctx, listProjectMeetings, projectID)
 	if err != nil {
 		return nil, err
@@ -182,12 +181,12 @@ RETURNING id, project_id, scheduled_by_user_id, start_time, end_time, meeting_ur
 `
 
 type UpdateMeetingParams struct {
-	ID         pgtype.UUID
-	StartTime  pgtype.Timestamp
-	EndTime    pgtype.Timestamp
-	MeetingUrl pgtype.Text
-	Location   pgtype.Text
-	Notes      pgtype.Text
+	ID         string
+	StartTime  time.Time
+	EndTime    time.Time
+	MeetingUrl *string
+	Location   *string
+	Notes      *string
 }
 
 func (q *Queries) UpdateMeeting(ctx context.Context, arg UpdateMeetingParams) (Meeting, error) {

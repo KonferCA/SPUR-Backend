@@ -5,23 +5,25 @@
 package db
 
 import (
+	"time"
+
 	"github.com/jackc/pgx/v5/pgtype"
 )
 
 type Company struct {
-	ID          pgtype.UUID
-	OwnerUserID pgtype.UUID
+	ID          string
+	OwnerUserID string
 	Name        string
-	Description pgtype.Text
+	Description *string
 	IsVerified  bool
-	CreatedAt   pgtype.Timestamp
-	UpdatedAt   pgtype.Timestamp
+	CreatedAt   time.Time
+	UpdatedAt   time.Time
 	DeletedAt   pgtype.Timestamp
 }
 
 type CompanyDocument struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
+	ID           string
+	CompanyID    string
 	DocumentType string
 	FileUrl      string
 	CreatedAt    pgtype.Timestamp
@@ -29,8 +31,8 @@ type CompanyDocument struct {
 }
 
 type CompanyFinancial struct {
-	ID             pgtype.UUID
-	CompanyID      pgtype.UUID
+	ID             string
+	CompanyID      string
 	FinancialYear  int32
 	Revenue        pgtype.Numeric
 	Expenses       pgtype.Numeric
@@ -44,9 +46,9 @@ type CompanyFinancial struct {
 }
 
 type CompanyQuestionAnswer struct {
-	ID         pgtype.UUID
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	ID         string
+	CompanyID  string
+	QuestionID string
 	AnswerText string
 	CreatedAt  pgtype.Timestamp
 	UpdatedAt  pgtype.Timestamp
@@ -54,19 +56,19 @@ type CompanyQuestionAnswer struct {
 }
 
 type Employee struct {
-	ID        pgtype.UUID
-	CompanyID pgtype.UUID
+	ID        string
+	CompanyID string
 	Name      string
 	Email     string
 	Role      string
-	Bio       pgtype.Text
+	Bio       *string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type FundingTransaction struct {
-	ID                pgtype.UUID
-	ProjectID         pgtype.UUID
+	ID                string
+	ProjectID         string
 	Amount            pgtype.Numeric
 	Currency          string
 	TransactionHash   string
@@ -78,40 +80,40 @@ type FundingTransaction struct {
 }
 
 type Meeting struct {
-	ID                pgtype.UUID
-	ProjectID         pgtype.UUID
-	ScheduledByUserID pgtype.UUID
-	StartTime         pgtype.Timestamp
-	EndTime           pgtype.Timestamp
-	MeetingUrl        pgtype.Text
-	Location          pgtype.Text
-	Notes             pgtype.Text
+	ID                string
+	ProjectID         string
+	ScheduledByUserID string
+	StartTime         time.Time
+	EndTime           time.Time
+	MeetingUrl        *string
+	Location          *string
+	Notes             *string
 	CreatedAt         pgtype.Timestamp
 	UpdatedAt         pgtype.Timestamp
 }
 
 type Project struct {
-	ID          pgtype.UUID
-	CompanyID   pgtype.UUID
+	ID          string
+	CompanyID   string
 	Title       string
-	Description pgtype.Text
+	Description *string
 	Status      string
 	CreatedAt   pgtype.Timestamp
 	UpdatedAt   pgtype.Timestamp
 }
 
 type ProjectComment struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	UserID    pgtype.UUID
+	ID        string
+	ProjectID string
+	UserID    string
 	Comment   string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type ProjectFile struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
+	ID        string
+	ProjectID string
 	FileType  string
 	FileUrl   string
 	CreatedAt pgtype.Timestamp
@@ -119,8 +121,8 @@ type ProjectFile struct {
 }
 
 type ProjectLink struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
+	ID        string
+	ProjectID string
 	LinkType  string
 	Url       string
 	CreatedAt pgtype.Timestamp
@@ -128,14 +130,14 @@ type ProjectLink struct {
 }
 
 type ProjectTag struct {
-	ID        pgtype.UUID
-	ProjectID pgtype.UUID
-	TagID     pgtype.UUID
+	ID        string
+	ProjectID string
+	TagID     string
 	CreatedAt pgtype.Timestamp
 }
 
 type Question struct {
-	ID           pgtype.UUID
+	ID           string
 	QuestionText string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
@@ -143,30 +145,30 @@ type Question struct {
 }
 
 type ResourceRequest struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
+	ID           string
+	CompanyID    string
 	ResourceType string
-	Description  pgtype.Text
+	Description  *string
 	Status       string
-	CreatedAt    pgtype.Timestamp
-	UpdatedAt    pgtype.Timestamp
+	CreatedAt    time.Time
+	UpdatedAt    time.Time
 }
 
 type Tag struct {
-	ID        pgtype.UUID
+	ID        string
 	Name      string
 	CreatedAt pgtype.Timestamp
 	UpdatedAt pgtype.Timestamp
 }
 
 type User struct {
-	ID            pgtype.UUID
+	ID            string
 	Email         string
 	PasswordHash  string
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
+	FirstName     *string
+	LastName      *string
 	Role          string
-	WalletAddress pgtype.Text
+	WalletAddress *string
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
 }

@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createUser = `-- name: CreateUser :one
@@ -26,8 +24,8 @@ INSERT INTO users (
 type CreateUserParams struct {
 	Email        string
 	PasswordHash string
-	FirstName    pgtype.Text
-	LastName     pgtype.Text
+	FirstName    *string
+	LastName     *string
 	Role         string
 }
 
@@ -81,7 +79,7 @@ SELECT id, email, password_hash, first_name, last_name, role, wallet_address, cr
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetUserByID(ctx context.Context, id pgtype.UUID) (User, error) {
+func (q *Queries) GetUserByID(ctx context.Context, id string) (User, error) {
 	row := q.db.QueryRow(ctx, getUserByID, id)
 	var i User
 	err := row.Scan(

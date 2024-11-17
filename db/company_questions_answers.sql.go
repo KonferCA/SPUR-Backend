@@ -23,8 +23,8 @@ RETURNING id, company_id, question_id, answer_text, created_at, updated_at, dele
 `
 
 type CreateCompanyAnswerParams struct {
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	CompanyID  string
+	QuestionID string
 	AnswerText string
 }
 
@@ -76,14 +76,14 @@ LIMIT 1
 `
 
 type GetCompanyAnswerParams struct {
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	CompanyID  string
+	QuestionID string
 }
 
 type GetCompanyAnswerRow struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
-	QuestionID   pgtype.UUID
+	ID           string
+	CompanyID    string
+	QuestionID   string
 	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
@@ -113,7 +113,7 @@ WHERE id = $1 AND deleted_at IS NULL
 LIMIT 1
 `
 
-func (q *Queries) GetQuestion(ctx context.Context, id pgtype.UUID) (Question, error) {
+func (q *Queries) GetQuestion(ctx context.Context, id string) (Question, error) {
 	row := q.db.QueryRow(ctx, getQuestion, id)
 	var i Question
 	err := row.Scan(
@@ -137,9 +137,9 @@ ORDER BY cqa.created_at DESC
 `
 
 type ListCompanyAnswersRow struct {
-	ID           pgtype.UUID
-	CompanyID    pgtype.UUID
-	QuestionID   pgtype.UUID
+	ID           string
+	CompanyID    string
+	QuestionID   string
 	AnswerText   string
 	CreatedAt    pgtype.Timestamp
 	UpdatedAt    pgtype.Timestamp
@@ -147,7 +147,7 @@ type ListCompanyAnswersRow struct {
 	QuestionText string
 }
 
-func (q *Queries) ListCompanyAnswers(ctx context.Context, companyID pgtype.UUID) ([]ListCompanyAnswersRow, error) {
+func (q *Queries) ListCompanyAnswers(ctx context.Context, companyID string) ([]ListCompanyAnswersRow, error) {
 	rows, err := q.db.Query(ctx, listCompanyAnswers, companyID)
 	if err != nil {
 		return nil, err
@@ -215,8 +215,8 @@ WHERE company_id = $1 AND question_id = $2
 `
 
 type SoftDeleteCompanyAnswerParams struct {
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	CompanyID  string
+	QuestionID string
 }
 
 func (q *Queries) SoftDeleteCompanyAnswer(ctx context.Context, arg SoftDeleteCompanyAnswerParams) error {
@@ -230,7 +230,7 @@ SET deleted_at = NOW()
 WHERE id = $1
 `
 
-func (q *Queries) SoftDeleteQuestion(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) SoftDeleteQuestion(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, softDeleteQuestion, id)
 	return err
 }
@@ -245,8 +245,8 @@ RETURNING id, company_id, question_id, answer_text, created_at, updated_at, dele
 `
 
 type UpdateCompanyAnswerParams struct {
-	CompanyID  pgtype.UUID
-	QuestionID pgtype.UUID
+	CompanyID  string
+	QuestionID string
 	AnswerText string
 }
 

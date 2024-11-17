@@ -5,7 +5,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -37,10 +36,7 @@ func (s *Server) handleCreateEmployee(c echo.Context) error {
 		Name:      req.Name,
 		Email:     req.Email,
 		Role:      req.Role,
-		Bio: pgtype.Text{
-			String: req.Bio,
-			Valid:  req.Bio != "",
-		},
+		Bio:       req.Bio,
 	}
 
 	employee, err := queries.CreateEmployee(context.Background(), params)
@@ -113,10 +109,7 @@ func (s *Server) handleUpdateEmployee(c echo.Context) error {
 		ID:   employeeID,
 		Name: req.Name,
 		Role: req.Role,
-		Bio: pgtype.Text{
-			String: req.Bio,
-			Valid:  req.Bio != "",
-		},
+		Bio:  req.Bio,
 	}
 
 	employee, err := queries.UpdateEmployee(context.Background(), params)

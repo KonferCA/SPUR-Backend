@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
+	"github.com/google/uuid"
 	"github.com/labstack/echo/v4"
 )
 
@@ -19,16 +19,15 @@ func (s *Server) handleCreateStartup(c echo.Context) error {
 		return echo.NewHTTPError(http.StatusBadRequest, err.Error())
 	}
 
-	var ownerUUID pgtype.UUID
-	if err := ownerUUID.Scan(req.OwnerUserID); err != nil {
+	if err := uuid.Validate(req.OwnerUserID); err != nil {
 		return echo.NewHTTPError(http.StatusBadRequest, "invalid owner ID format")
 	}
 
 	queries := db.New(s.DBPool)
 	params := db.CreateCompanyParams{
-		OwnerUserID: ownerUUID,
+		OwnerUserID: req.OwnerUserID,
 		Name:        req.Name,
-		Description: pgtype.Text{String: req.Description, Valid: true},
+		Description: req.Description,
 	}
 
 	company, err := queries.CreateCompany(context.Background(), params)

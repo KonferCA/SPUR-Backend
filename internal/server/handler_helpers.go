@@ -5,6 +5,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/google/uuid"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
@@ -23,16 +24,15 @@ func validateBody(c echo.Context, requestBodyType interface{}) error {
 	return nil
 }
 
-func validateUUID(id string, fieldName string) (pgtype.UUID, error) {
-	var uuid pgtype.UUID
+func validateUUID(id string, fieldName string) (string, error) {
 	if id == "" {
-		return uuid, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s ID :(", fieldName))
+		return "", echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s ID :(", fieldName))
 	}
-	if err := uuid.Scan(id); err != nil {
-		return uuid, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s ID format :(", fieldName))
+	if err := uuid.Validate(id); err != nil {
+		return "", echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s ID format :(", fieldName))
 	}
 
-	return uuid, nil
+	return id, nil
 }
 
 func handleDBError(err error, operation string, resourceType string) error {
@@ -75,28 +75,21 @@ func validateNumeric(value string) (pgtype.Numeric, error) {
 	return num, nil
 }
 
-func validateTimestamp(timeStr string, fieldName string) (pgtype.Timestamp, error) {
-	var ts pgtype.Timestamp
+func validateTimestamp(timeStr string, fieldName string) (*time.Time, error) {
 	if timeStr == "" {
-		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s :(", fieldName))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Missing %s :(", fieldName))
 	}
 
 	parsedTime, err := time.Parse(time.RFC3339, timeStr)
 	if err != nil {
-		return ts, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s format :(", fieldName))
+		return nil, echo.NewHTTPError(http.StatusBadRequest, fmt.Sprintf("Invalid %s format :(", fieldName))
 	}
 
-	ts.Time = parsedTime
-	ts.Valid = true
-	return ts, nil
+	return &parsedTime, nil
 }
 
-func validateTimeRange(startTime, endTime pgtype.Timestamp) error {
-	if !startTime.Valid || !endTime.Valid {
-		return echo.NewHTTPError(http.StatusBadRequest, "Invalid time values :(")
-	}
-
-	if endTime.Time.Before(startTime.Time) {
+func validateTimeRange(startTime, endTime time.Time) error {
+	if endTime.Before(startTime) {
 		return echo.NewHTTPError(http.StatusBadRequest, "End time cannot be before start time :(")
 	}
 

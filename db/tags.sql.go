@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createTag = `-- name: CreateTag :one
@@ -37,7 +35,7 @@ DELETE FROM tags
 WHERE id = $1
 `
 
-func (q *Queries) DeleteTag(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteTag(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteTag, id)
 	return err
 }
@@ -47,7 +45,7 @@ SELECT id, name, created_at, updated_at FROM tags
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetTag(ctx context.Context, id pgtype.UUID) (Tag, error) {
+func (q *Queries) GetTag(ctx context.Context, id string) (Tag, error) {
 	row := q.db.QueryRow(ctx, getTag, id)
 	var i Tag
 	err := row.Scan(

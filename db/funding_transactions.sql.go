@@ -27,7 +27,7 @@ RETURNING id, project_id, amount, currency, transaction_hash, from_wallet_addres
 `
 
 type CreateFundingTransactionParams struct {
-	ProjectID         pgtype.UUID
+	ProjectID         string
 	Amount            pgtype.Numeric
 	Currency          string
 	TransactionHash   string
@@ -67,7 +67,7 @@ DELETE FROM funding_transactions
 WHERE id = $1
 `
 
-func (q *Queries) DeleteFundingTransaction(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteFundingTransaction(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteFundingTransaction, id)
 	return err
 }
@@ -77,7 +77,7 @@ SELECT id, project_id, amount, currency, transaction_hash, from_wallet_address, 
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetFundingTransaction(ctx context.Context, id pgtype.UUID) (FundingTransaction, error) {
+func (q *Queries) GetFundingTransaction(ctx context.Context, id string) (FundingTransaction, error) {
 	row := q.db.QueryRow(ctx, getFundingTransaction, id)
 	var i FundingTransaction
 	err := row.Scan(
@@ -137,7 +137,7 @@ WHERE project_id = $1
 ORDER BY created_at DESC
 `
 
-func (q *Queries) ListProjectFundingTransactions(ctx context.Context, projectID pgtype.UUID) ([]FundingTransaction, error) {
+func (q *Queries) ListProjectFundingTransactions(ctx context.Context, projectID string) ([]FundingTransaction, error) {
 	rows, err := q.db.Query(ctx, listProjectFundingTransactions, projectID)
 	if err != nil {
 		return nil, err
@@ -178,7 +178,7 @@ RETURNING id, project_id, amount, currency, transaction_hash, from_wallet_addres
 `
 
 type UpdateFundingTransactionStatusParams struct {
-	ID     pgtype.UUID
+	ID     string
 	Status string
 }
 

@@ -7,8 +7,6 @@ package db
 
 import (
 	"context"
-
-	"github.com/jackc/pgx/v5/pgtype"
 )
 
 const createResourceRequest = `-- name: CreateResourceRequest :one
@@ -33,9 +31,9 @@ RETURNING id, company_id, resource_type, description, status, created_at, update
 `
 
 type CreateResourceRequestParams struct {
-	CompanyID    pgtype.UUID
+	CompanyID    string
 	ResourceType string
-	Description  pgtype.Text
+	Description  *string
 	Status       string
 }
 
@@ -64,7 +62,7 @@ DELETE FROM resource_requests
 WHERE id = $1
 `
 
-func (q *Queries) DeleteResourceRequest(ctx context.Context, id pgtype.UUID) error {
+func (q *Queries) DeleteResourceRequest(ctx context.Context, id string) error {
 	_, err := q.db.Exec(ctx, deleteResourceRequest, id)
 	return err
 }
@@ -74,7 +72,7 @@ SELECT id, company_id, resource_type, description, status, created_at, updated_a
 WHERE id = $1 LIMIT 1
 `
 
-func (q *Queries) GetResourceRequestByID(ctx context.Context, id pgtype.UUID) (ResourceRequest, error) {
+func (q *Queries) GetResourceRequestByID(ctx context.Context, id string) (ResourceRequest, error) {
 	row := q.db.QueryRow(ctx, getResourceRequestByID, id)
 	var i ResourceRequest
 	err := row.Scan(
@@ -128,7 +126,7 @@ WHERE company_id = $1
 ORDER BY updated_at DESC
 `
 
-func (q *Queries) ListResourceRequestsByCompany(ctx context.Context, companyID pgtype.UUID) ([]ResourceRequest, error) {
+func (q *Queries) ListResourceRequestsByCompany(ctx context.Context, companyID string) ([]ResourceRequest, error) {
 	rows, err := q.db.Query(ctx, listResourceRequestsByCompany, companyID)
 	if err != nil {
 		return nil, err
@@ -166,7 +164,7 @@ RETURNING id, company_id, resource_type, description, status, created_at, update
 `
 
 type UpdateResourceRequestStatusParams struct {
-	ID     pgtype.UUID
+	ID     string
 	Status string
 }
 

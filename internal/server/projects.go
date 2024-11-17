@@ -6,7 +6,6 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
-	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 )
 
@@ -32,13 +31,10 @@ func (s *Server) handleCreateProject(c echo.Context) error {
 		companyID, req.Title, req.Status)
 
 	params := db.CreateProjectParams{
-		CompanyID: companyID,
-		Title:     req.Title,
-		Description: pgtype.Text{
-			String: req.Description,
-			Valid:  req.Description != "",
-		},
-		Status: req.Status,
+		CompanyID:   companyID,
+		Title:       req.Title,
+		Description: req.Description,
+		Status:      req.Status,
 	}
 
 	project, err := queries.CreateProject(context.Background(), params)
