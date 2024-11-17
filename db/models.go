@@ -15,9 +15,9 @@ import (
 type UserRole string
 
 const (
-	UserRoleAdmin    UserRole = "admin"
-	UserRoleUser     UserRole = "user"
-	UserRoleInvestor UserRole = "investor"
+	UserRoleAdmin        UserRole = "admin"
+	UserRoleStartupOwner UserRole = "startup_owner"
+	UserRoleInvestor     UserRole = "investor"
 )
 
 func (e *UserRole) Scan(src interface{}) error {
@@ -58,7 +58,7 @@ func (ns NullUserRole) Value() (driver.Value, error) {
 func (e UserRole) Valid() bool {
 	switch e {
 	case UserRoleAdmin,
-		UserRoleUser,
+		UserRoleStartupOwner,
 		UserRoleInvestor:
 		return true
 	}
@@ -68,7 +68,7 @@ func (e UserRole) Valid() bool {
 func AllUserRoleValues() []UserRole {
 	return []UserRole{
 		UserRoleAdmin,
-		UserRoleUser,
+		UserRoleStartupOwner,
 		UserRoleInvestor,
 	}
 }
@@ -233,5 +233,5 @@ type User struct {
 	WalletAddress *string
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
-	Role          UserRole
+	Role          string
 }
