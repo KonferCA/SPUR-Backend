@@ -3,9 +3,11 @@ package server
 import (
 	"context"
 	"net/http"
+	"reflect"
 
 	"github.com/KonferCA/NoKap/db"
 	"github.com/KonferCA/NoKap/internal/jwt"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/jackc/pgx/v5/pgtype"
 	"github.com/labstack/echo/v4"
 	"golang.org/x/crypto/bcrypt"
@@ -14,21 +16,19 @@ import (
 func (s *Server) setupAuthRoutes() {
 	auth := s.apiV1.Group("/auth")
 	auth.Use(s.authLimiter.RateLimit()) // special rate limit for auth routes
-	auth.POST("/signup", s.handleSignup)
-	auth.POST("/signin", s.handleSignin)
+	auth.POST("/signup", s.handleSignup, mw.ValidateRequestBody(reflect.TypeOf(SignupRequest{})))
+	auth.POST("/signin", s.handleSignin, mw.ValidateRequestBody(reflect.TypeOf(SigninRequest{})))
 }
 
 func (s *Server) handleSignup(c echo.Context) error {
-	var req SignupRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
+	var req *SignupRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*SignupRequest)
+	if !ok {
+		// not good... no bueno
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
-	if err := c.Validate(&req); err != nil {
-		return err
-	}
-
-	ctx := context.Background()
+	ctx := c.Request().Context()
 	existingUser, err := s.queries.GetUserByEmail(ctx, req.Email)
 	if err == nil && existingUser.ID != "" {
 		return echo.NewHTTPError(http.StatusConflict, "email already registered")
@@ -70,13 +70,12 @@ func (s *Server) handleSignup(c echo.Context) error {
 }
 
 func (s *Server) handleSignin(c echo.Context) error {
-	var req SigninRequest
-	if err := c.Bind(&req); err != nil {
-		return echo.NewHTTPError(http.StatusBadRequest, "invalid request body")
-	}
-
-	if err := c.Validate(&req); err != nil {
-		return err
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*SigninRequest)
+	if !ok {
+		// no bueno...
+		// should never really reach this state since the validator should reject
+		// the request body if it is not a proper SigninRequest type
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	ctx := context.Background()
