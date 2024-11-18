@@ -7,6 +7,7 @@ import (
 	"os"
 	"testing"
 
+	"github.com/KonferCA/NoKap/db"
 	"github.com/KonferCA/NoKap/internal/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/stretchr/testify/assert"
@@ -24,7 +25,7 @@ func TestProtectAPIForAccessToken(t *testing.T) {
 
 	// generate valid tokens
 	userID := "user-id"
-	role := "user-role"
+	role := db.UserRole("user-role")
 	accessToken, refreshToken, err := jwt.Generate(userID, role)
 	assert.Nil(t, err)
 
@@ -103,7 +104,7 @@ func TestProtectAPIForRefreshToken(t *testing.T) {
 
 	// generate valid tokens
 	userID := "user-id"
-	role := "user-role"
+	role := db.UserRole("user-role")
 	accessToken, refreshToken, err := jwt.Generate(userID, role)
 	assert.Nil(t, err)
 

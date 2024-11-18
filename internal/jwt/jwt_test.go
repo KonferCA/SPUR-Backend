@@ -5,6 +5,7 @@ import (
 	"testing"
 	"time"
 
+	"github.com/KonferCA/NoKap/db"
 	golangJWT "github.com/golang-jwt/jwt/v5"
 	"github.com/stretchr/testify/assert"
 )
@@ -14,7 +15,7 @@ func TestJWT(t *testing.T) {
 	os.Setenv("JWT_SECRET", "secret")
 
 	userID := "some-user-id"
-	role := "user"
+	role := db.UserRole("user")
 	exp := time.Now().Add(5 * time.Minute)
 
 	t.Run("generate access token", func(t *testing.T) {

@@ -2,6 +2,8 @@ package server
 
 import (
 	"time"
+
+	"github.com/KonferCA/NoKap/db"
 )
 
 // TODO: Reorder types
@@ -42,11 +44,11 @@ type CreateResourceRequestRequest struct {
 }
 
 type SignupRequest struct {
-	Email     string `json:"email" validate:"required,email"`
-	Password  string `json:"password" validate:"required,min=8"`
-	FirstName string `json:"first_name" validate:"required"`
-	LastName  string `json:"last_name" validate:"required"`
-	Role      string `json:"role" validate:"required,valid_user_role"`
+	Email     string      `json:"email" validate:"required,email"`
+	Password  string      `json:"password" validate:"required,min=8"`
+	FirstName string      `json:"first_name" validate:"required"`
+	LastName  string      `json:"last_name" validate:"required"`
+	Role      db.UserRole `json:"role" validate:"required,valid_user_role"`
 }
 
 type SigninRequest struct {
@@ -61,12 +63,12 @@ type AuthResponse struct {
 }
 
 type User struct {
-	ID            string  `json:"id"`
-	Email         string  `json:"email"`
-	FirstName     string  `json:"first_name"`
-	LastName      string  `json:"last_name"`
-	Role          string  `json:"role"`
-	WalletAddress *string `json:"wallet_address,omitempty"`
+	ID            string      `json:"id"`
+	Email         string      `json:"email"`
+	FirstName     string      `json:"first_name"`
+	LastName      string      `json:"last_name"`
+	Role          db.UserRole `json:"role"`
+	WalletAddress *string     `json:"wallet_address,omitempty"`
 }
 
 type CreateCompanyFinancialsRequest struct {

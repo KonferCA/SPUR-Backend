@@ -22,5 +22,3 @@ sql:
             go_type: "string"
           - db_type: "pg_catalog.timestamp"
             go_type: "time.Time"
-          - db_type: "user_role"
-            go_type: "string"

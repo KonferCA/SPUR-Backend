@@ -4,6 +4,7 @@ import (
 	"os"
 	"time"
 
+	"github.com/KonferCA/NoKap/db"
 	golangJWT "github.com/golang-jwt/jwt/v5"
 )
 
@@ -13,7 +14,7 @@ const (
 )
 
 // Generates JWT tokens for the given user. Returns the access token, refresh token and error (nil if no error)
-func Generate(userID string, role string) (string, string, error) {
+func Generate(userID string, role db.UserRole) (string, string, error) {
 	accessToken, err := generateToken(userID, role, ACCESS_TOKEN_TYPE, time.Now().Add(10*time.Minute))
 	if err != nil {
 		return "", "", err
@@ -28,7 +29,7 @@ func Generate(userID string, role string) (string, string, error) {
 }
 
 // Private helper method to generate a token.
-func generateToken(userID, role, tokenType string, exp time.Time) (string, error) {
+func generateToken(userID string, role db.UserRole, tokenType string, exp time.Time) (string, error) {
 	claims := JWTClaims{
 		UserID:    userID,
 		Role:      role,

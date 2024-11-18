@@ -26,7 +26,7 @@ type CreateUserParams struct {
 	PasswordHash string
 	FirstName    *string
 	LastName     *string
-	Role         string
+	Role         UserRole
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, error) {

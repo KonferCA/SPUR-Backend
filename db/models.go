@@ -5,9 +5,9 @@
 package db
 
 import (
-	"time"
 	"database/sql/driver"
 	"fmt"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
@@ -233,5 +233,5 @@ type User struct {
 	WalletAddress *string
 	CreatedAt     pgtype.Timestamp
 	UpdatedAt     pgtype.Timestamp
-	Role          string
+	Role          UserRole
 }
