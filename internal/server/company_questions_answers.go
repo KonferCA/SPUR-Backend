@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateQuestion(c echo.Context) error {
-	var req CreateQuestionRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateQuestionRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateQuestionRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
@@ -54,9 +56,10 @@ func (s *Server) handleCreateCompanyAnswer(c echo.Context) error {
 		return err
 	}
 
-	var req CreateCompanyAnswerRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateCompanyAnswerRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateCompanyAnswerRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	questionID, err := validateUUID(req.QuestionID, "question")
@@ -143,9 +146,10 @@ func (s *Server) handleUpdateCompanyAnswer(c echo.Context) error {
 		return err
 	}
 
-	var req UpdateCompanyAnswerRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *UpdateCompanyAnswerRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateCompanyAnswerRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
@@ -201,6 +205,21 @@ func (s *Server) handleDeleteCompanyAnswer(c echo.Context) error {
 	err = queries.SoftDeleteCompanyAnswer(context.Background(), params)
 	if err != nil {
 		return handleDBError(err, "delete", "company answer")
+	}
+
+	return c.NoContent(http.StatusNoContent)
+}
+
+func (s *Server) handleDeleteQuestion(c echo.Context) error {
+	questionID, err := validateUUID(c.Param("id"), "question")
+	if err != nil {
+		return err
+	}
+
+	queries := db.New(s.DBPool)
+	err = queries.SoftDeleteQuestion(context.Background(), questionID)
+	if err != nil {
+		return handleDBError(err, "delete", "question")
 	}
 
 	return c.NoContent(http.StatusNoContent)

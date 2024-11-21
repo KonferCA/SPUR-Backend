@@ -5,13 +5,19 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
+type UpdateResourceRequestStatusRequest struct {
+	Status string `json:"status" validate:"required"`
+}
+
 func (s *Server) handleCreateResourceRequest(c echo.Context) error {
-	var req CreateResourceRequestRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateResourceRequestRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateResourceRequestRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	companyID, err := validateUUID(req.CompanyID, "company")
@@ -92,11 +98,10 @@ func (s *Server) handleUpdateResourceRequestStatus(c echo.Context) error {
 		return err
 	}
 
-	var status struct {
-		Status string `json:"status" validate:"required"`
-	}
-	if err := validateBody(c, &status); err != nil {
-		return err
+	var req *UpdateResourceRequestStatusRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateResourceRequestStatusRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
@@ -107,7 +112,7 @@ func (s *Server) handleUpdateResourceRequestStatus(c echo.Context) error {
 
 	request, err := queries.UpdateResourceRequestStatus(context.Background(), db.UpdateResourceRequestStatusParams{
 		ID:     requestID,
-		Status: status.Status,
+		Status: req.Status,
 	})
 	if err != nil {
 		return handleDBError(err, "update", "resource request status")

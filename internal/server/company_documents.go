@@ -5,13 +5,15 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateCompanyDocument(c echo.Context) error {
-	var req CreateCompanyDocumentRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateCompanyDocumentRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateCompanyDocumentRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	companyID, err := validateUUID(req.CompanyID, "company")
@@ -91,9 +93,10 @@ func (s *Server) handleUpdateCompanyDocument(c echo.Context) error {
 		return err
 	}
 
-	var req UpdateCompanyDocumentRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *UpdateCompanyDocumentRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateCompanyDocumentRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
