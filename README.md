@@ -1,4 +1,4 @@
-# Welcome to Konfer's :unicorn: Project NoKap
+# Welcome to Konfer's :unicorn: Project SPUR
 
 ## Getting Started
 
