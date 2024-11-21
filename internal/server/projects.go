@@ -225,6 +225,17 @@ func (s *Server) handleDeleteProjectComment(c echo.Context) error {
 	}
 
 	queries := db.New(s.DBPool)
+	
+	// First check if the comment exists using a direct query
+	var exists bool
+	err = s.DBPool.QueryRow(context.Background(), "SELECT EXISTS(SELECT 1 FROM project_comments WHERE id = $1)", commentID).Scan(&exists)
+	if err != nil {
+		return handleDBError(err, "verify", "project comment")
+	}
+	if !exists {
+		return echo.NewHTTPError(http.StatusNotFound, "project comment not found :(")
+	}
+
 	err = queries.DeleteProjectComment(context.Background(), commentID)
 	if err != nil {
 		return handleDBError(err, "delete", "project comment")

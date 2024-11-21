@@ -20,13 +20,17 @@ func (s *Server) setupStaticRoutes() {
 	// hardcode static directory
 	staticDir := "static/dist"
 
-	// serve static files
+	// serve static files, excluding API routes
 	s.echoInstance.Use(middleware.StaticWithConfig(middleware.StaticConfig{
 		Root:       staticDir,
 		Index:      "index.html",
 		HTML5:      true,
 		Browse:     false,
 		IgnoreBase: true,
+		Skipper: func(c echo.Context) bool {
+			// Skip static file handling for API routes
+			return strings.HasPrefix(c.Request().URL.Path, "/api/")
+		},
 	}))
 
 	// serve assets with correct mime types
