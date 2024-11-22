@@ -6,13 +6,15 @@ import (
 	"strconv"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateCompanyFinancials(c echo.Context) error {
-	var req CreateCompanyFinancialsRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateCompanyFinancialsRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateCompanyFinancialsRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	companyID, err := validateUUID(c.Param("id"), "company")
@@ -84,9 +86,10 @@ func (s *Server) handleGetCompanyFinancials(c echo.Context) error {
 }
 
 func (s *Server) handleUpdateCompanyFinancials(c echo.Context) error {
-	var req CreateCompanyFinancialsRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateCompanyFinancialsRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateCompanyFinancialsRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	companyID, err := validateUUID(c.Param("id"), "company")

@@ -6,13 +6,15 @@ import (
 	"time"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateMeeting(c echo.Context) error {
-	var req CreateMeetingRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateMeetingRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateMeetingRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	projectID, err := validateUUID(req.ProjectID, "project")
@@ -116,9 +118,10 @@ func (s *Server) handleUpdateMeeting(c echo.Context) error {
 		return err
 	}
 
-	var req UpdateMeetingRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *UpdateMeetingRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateMeetingRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	startTime, err := time.Parse(time.RFC3339, req.StartTime)

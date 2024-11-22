@@ -6,13 +6,15 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateProject(c echo.Context) error {
-	var req CreateProjectRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateProjectRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateProjectRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	companyID, err := validateUUID(req.CompanyID, "company")
@@ -112,9 +114,10 @@ func (s *Server) handleCreateProjectFile(c echo.Context) error {
 		return err
 	}
 
-	var req CreateProjectFileRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateProjectFileRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateProjectFileRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
@@ -173,9 +176,10 @@ func (s *Server) handleCreateProjectComment(c echo.Context) error {
 		return err
 	}
 
-	var req CreateProjectCommentRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateProjectCommentRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateProjectCommentRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	userID, err := validateUUID(req.UserID, "user")
@@ -250,9 +254,10 @@ func (s *Server) handleCreateProjectLink(c echo.Context) error {
 		return err
 	}
 
-	var req CreateProjectLinkRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateProjectLinkRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateProjectLinkRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
@@ -311,9 +316,10 @@ func (s *Server) handleAddProjectTag(c echo.Context) error {
 		return err
 	}
 
-	var req AddProjectTagRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *AddProjectTagRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*AddProjectTagRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	tagID, err := validateUUID(req.TagID, "tag")
@@ -379,4 +385,40 @@ func (s *Server) handleDeleteProjectTag(c echo.Context) error {
 	}
 
 	return c.NoContent(http.StatusNoContent)
+}
+
+func (s *Server) handleUpdateProject(c echo.Context) error {
+	projectID, err := validateUUID(c.Param("id"), "project")
+	if err != nil {
+		return err
+	}
+
+	var req *UpdateProjectRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateProjectRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
+	}
+
+	queries := db.New(s.DBPool)
+
+	// Verify project exists
+	_, err = queries.GetProject(context.Background(), projectID)
+	if err != nil {
+		return handleDBError(err, "verify", "project")
+	}
+
+	description := req.Description
+	params := db.UpdateProjectParams{
+		ID:          projectID,
+		Title:       req.Title,
+		Description: &description,
+		Status:      req.Status,
+	}
+
+	project, err := queries.UpdateProject(context.Background(), params)
+	if err != nil {
+		return handleDBError(err, "update", "project")
+	}
+
+	return c.JSON(http.StatusOK, project)
 }

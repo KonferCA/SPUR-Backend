@@ -61,3 +61,8 @@ RETURNING *;
 UPDATE company_question_answers
 SET deleted_at = NOW()
 WHERE company_id = $1 AND question_id = $2;
+
+-- name: DeleteQuestion :exec
+UPDATE questions 
+SET deleted_at = NOW()
+WHERE id = $1 AND deleted_at IS NULL;

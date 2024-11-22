@@ -6,13 +6,15 @@ import (
 	"net/http"
 
 	"github.com/KonferCA/NoKap/db"
+	mw "github.com/KonferCA/NoKap/internal/middleware"
 	"github.com/labstack/echo/v4"
 )
 
 func (s *Server) handleCreateFundingTransaction(c echo.Context) error {
-	var req CreateFundingTransactionRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *CreateFundingTransactionRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*CreateFundingTransactionRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	projectID, err := validateUUID(req.ProjectID, "project")
@@ -102,9 +104,10 @@ func (s *Server) handleUpdateFundingTransactionStatus(c echo.Context) error {
 		return err
 	}
 
-	var req UpdateFundingTransactionStatusRequest
-	if err := validateBody(c, &req); err != nil {
-		return err
+	var req *UpdateFundingTransactionStatusRequest
+	req, ok := c.Get(mw.REQUEST_BODY_KEY).(*UpdateFundingTransactionStatusRequest)
+	if !ok {
+		return echo.NewHTTPError(http.StatusInternalServerError, http.StatusText(http.StatusInternalServerError))
 	}
 
 	queries := db.New(s.DBPool)
